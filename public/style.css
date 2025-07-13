@@ -1,0 +1,109 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f4f7f9;
+    color: #333;
+    line-height: 1.6;
+    padding: 20px;
+}
+
+#quiz-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 30px;
+}
+
+.question-block {
+    margin-bottom: 35px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.subject-tag {
+    display: inline-block;
+    background-color: #3498db;
+    color: white;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    margin-bottom: 10px;
+}
+
+.question-statement {
+    font-size: 1.2em;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.options-container .option {
+    display: block;
+    background-color: #ecf0f1;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    border: 1px solid #bdc3c7;
+}
+
+.options-container .option:hover {
+    background-color: #dce4e6;
+    transform: translateY(-2px);
+}
+
+/* --- Feedback Styles --- */
+.option.correct {
+    background-color: #2ecc71 !important; /* Green */
+    color: white;
+    border-color: #27ae60;
+}
+
+.option.incorrect {
+    background-color: #e74c3c !important; /* Red */
+    color: white;
+    border-color: #c0392b;
+}
+
+.options-container.disabled .option {
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* --- Reason Styles --- */
+.reasons-container {
+    display: none; /* Hidden by default */
+    margin-top: 15px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+}
+
+.reasons-container p {
+    margin: 0 0 10px 0;
+    padding-left: 20px;
+    position: relative;
+    font-size: 0.95em;
+}
+
+.reasons-container p::before {
+    position: absolute;
+    left: 0;
+    font-weight: bold;
+}
+
+.reasons-container p.correct-reason::before {
+    content: '✅';
+}
+
+.reasons-container p.incorrect-reason::before {
+    content: '❌';
+}
