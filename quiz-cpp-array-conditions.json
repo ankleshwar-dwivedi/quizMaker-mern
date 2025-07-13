@@ -1,0 +1,342 @@
+[
+    {
+        "subject": "C++ Flow: If-Else",
+        "question": "What is a 'dangling else' problem?",
+        "options": [
+            "An `else` statement with no corresponding `if` statement.",
+            "An `else` that is associated with the wrong `if` in a nested `if-else` structure.",
+            "An `if` statement that is never executed.",
+            "An `else` block that contains a syntax error."
+        ],
+        "reasons": [
+            "Incorrect. This would be a direct compile error.",
+            "Correct. In a structure like `if(c1) if(c2) s1; else s2;`, the C++ rule is that an `else` always pairs with the nearest preceding `if` that does not already have an `else`. So, `s2` belongs to `if(c2)`, which might not be the programmer's intent. Using braces `{}` clarifies the association.",
+            "Incorrect. This relates to dead code, not the dangling else problem.",
+            "Incorrect. This is a syntax error, not a logical ambiguity problem."
+        ],
+        "correctAnswer": 1
+    },
+    {
+        "subject": "C++ Flow: Switch",
+        "question": "What happens if you omit the `break` statement in a `switch` case?",
+        "options": [
+            "The program will not compile.",
+            "Only the matching `case` will execute, and the `switch` will then exit.",
+            "Execution will 'fall through' to the next `case` block and continue until a `break` or the end of the `switch` is reached.",
+            "It is equivalent to using a `continue` statement."
+        ],
+        "reasons": [
+            "Incorrect. Omitting `break` is valid C++ syntax and is sometimes done intentionally.",
+            "Incorrect. This is the behavior when `break` is present.",
+            "Correct. This is the 'fallthrough' behavior of the `switch` statement. Once a `case` matches, execution starts there and continues sequentially into subsequent `case` blocks until a `break` is encountered.",
+            "Incorrect. `continue` applies to loops, not `switch` statements."
+        ],
+        "correctAnswer": 2
+    },
+    {
+        "subject": "C++ Flow: For Loop",
+        "question": "What is the output of this code? `for(int i=0; i<3; ++i); std::cout << i;`",
+        "options": [
+            "012",
+            "3",
+            "A compile-time error.",
+            "0"
+        ],
+        "reasons": [
+            "Incorrect. The `cout` is not inside the loop body.",
+            "Incorrect. The loop variable `i` is out of scope.",
+            "Correct. The semicolon `;` after the `for` loop condition `for(int i=0; i<3; ++i);` creates an empty loop body. The loop runs three times, doing nothing. The `std::cout << i;` statement is *after* the loop. Since `i` was declared inside the `for` loop's scope, it no longer exists after the loop finishes, leading to a 'not declared in this scope' compile error.",
+            "Incorrect. The loop runs to completion before the `cout` is even considered."
+        ],
+        "correctAnswer": 2
+    },
+    {
+        "subject": "C++ Flow: While vs Do-While",
+        "question": "What is the fundamental difference between a `while` loop and a `do-while` loop?",
+        "options": [
+            "A `while` loop is faster.",
+            "A `do-while` loop's body is guaranteed to execute at least once.",
+            "A `while` loop cannot have an empty body.",
+            "A `do-while` loop cannot create an infinite loop."
+        ],
+        "reasons": [
+            "Incorrect. There is no inherent performance difference.",
+            "Correct. A `while` loop is a pre-test loop; it checks the condition *before* executing the body. A `do-while` loop is a post-test loop; it executes the body *first* and then checks the condition. Therefore, a `do-while` loop will always run its body at least one time, even if the condition is initially false.",
+            "Incorrect. Both loops can have empty bodies (e.g., `while(condition);`).",
+            "Incorrect. Both loops can create infinite loops if the condition never becomes false."
+        ],
+        "correctAnswer": 1
+    },
+    {
+        "subject": "C++ Flow: Jump Statements",
+        "question": "In which contexts can the `break` statement be legally used?",
+        "options": [
+            "Only inside `for` loops.",
+            "Inside any loop (`for`, `while`, `do-while`) or a `switch` statement.",
+            "Inside any loop or an `if` statement.",
+            "Anywhere in a function."
+        ],
+        "reasons": [
+            "Incorrect. It is also used in other loops and switch statements.",
+            "Correct. The `break` statement is specifically designed to terminate the execution of the innermost enclosing loop or `switch` statement.",
+            "Incorrect. `break` cannot be used to exit an `if` statement on its own; it must be inside a loop or switch.",
+            "Incorrect. Using `break` outside of a loop or switch is a compile-time error."
+        ],
+        "correctAnswer": 1
+    },
+    {
+        "subject": "C++ Arrays: Declaration",
+        "question": "Which of the following is an invalid array declaration in C++?",
+        "options": [
+            "`int arr[] = {1, 2, 3};`",
+            "`int n = 5; int arr[n];` (where n is not a const expression)",
+            "`const int SIZE = 5; int arr[SIZE];`",
+            "`int arr[5];`"
+        ],
+        "reasons": [
+            "Incorrect. This is a valid declaration. The compiler will deduce the size of the array (3) from the initializer list.",
+            "Correct. Standard C++ requires that the size of a static or stack-allocated array be a compile-time constant expression. Using a non-const variable `n` is not allowed. This is a feature called Variable Length Arrays (VLAs), which is a non-standard extension in some compilers (like GCC) but is not part of the C++ standard.",
+            "Incorrect. This is valid because `SIZE` is a compile-time constant.",
+            "Incorrect. This is the most basic valid declaration."
+        ],
+        "correctAnswer": 1
+    },
+    {
+        "subject": "C++ Arrays: Initialization",
+        "question": "What are the contents of the array `arr` after this declaration? `int arr[5] = {10, 20};`",
+        "options": [
+            "{10, 20, garbage, garbage, garbage}",
+            "{10, 20, 0, 0, 0}",
+            "{10, 20, 10, 20, 10}",
+            "A compile-time error because not all elements are initialized."
+        ],
+        "reasons": [
+            "Incorrect. This would be true for an uninitialized local array, but not a partially initialized one.",
+            "Correct. When an array is partially initialized using an initializer list, the elements for which values are provided are initialized accordingly. All remaining elements are value-initialized, which for integers means they are set to 0.",
+            "Incorrect. There is no such repetition rule.",
+            "Incorrect. Partial initialization is perfectly valid in C++."
+        ],
+        "correctAnswer": 1
+    },
+    {
+        "subject": "C++ Arrays: 2D Arrays",
+        "question": "How do you access the element in the 2nd row and 3rd column of a 2D array declared as `int matrix[4][5];`?",
+        "options": [
+            "`matrix[2, 3]`",
+            "`matrix[3][2]`",
+            "`matrix[1][2]`",
+            "`matrix[2][1]`"
+        ],
+        "reasons": [
+            "Incorrect. This uses the comma operator and is not the correct syntax for accessing 2D array elements.",
+            "Incorrect. This accesses the 4th row, 3rd column.",
+            "Correct. Array indexing is 0-based. The 2nd row is at index 1, and the 3rd column is at index 2. Therefore, `matrix[1][2]` is the correct way to access the element.",
+            "Incorrect. This accesses the 3rd row, 2nd column."
+        ],
+        "correctAnswer": 2
+    },
+    {
+        "subject": "C++ Arrays: Memory Layout",
+        "question": "How are 2D arrays typically stored in memory in C++?",
+        "options": [
+            "Column-major order",
+            "Row-major order",
+            "In a linked-list of rows.",
+            "In a hash map for fast access."
+        ],
+        "reasons": [
+            "Incorrect. Column-major order is used by languages like Fortran and MATLAB.",
+            "Correct. C++ stores multidimensional arrays in row-major order. This means that all elements of the first row are stored contiguously in memory, followed by all elements of the second row, and so on. `arr[0][0], arr[0][1], ..., arr[1][0], arr[1][1], ...`",
+            "Incorrect. Arrays are stored in a contiguous block of memory.",
+            "Incorrect. Hash maps are a different data structure."
+        ],
+        "correctAnswer": 1
+    },
+    {
+        "subject": "C++ Flow: Jump Statements",
+        "question": "What is the purpose of the `return` keyword inside a function?",
+        "options": [
+            "To skip the current iteration of a loop.",
+            "To terminate the entire program.",
+            "To exit the current function and optionally pass a value back to the caller.",
+            "To jump to a specific labeled statement within the function."
+        ],
+        "reasons": [
+            "Incorrect. This is the purpose of the `continue` keyword.",
+            "Incorrect. This is typically done by the `exit()` function or by returning from `main`.",
+            "Correct. `return` immediately terminates the execution of the function it is in. If the function has a non-void return type, `return` is used to provide the value that will be sent back to the code that called the function.",
+            "Incorrect. This is the purpose of the `goto` keyword."
+        ],
+        "correctAnswer": 2
+    },
+    {
+        "subject": "C++ Flow: Switch",
+        "question": "What types can be used in a `switch` statement's condition?",
+        "options": [
+            "Any integer type, `enum`, or `char`.",
+            "Any integer type or a `std::string`.",
+            "Any floating-point type like `float` or `double`.",
+            "Any data type, including custom classes."
+        ],
+        "reasons": [
+            "Correct. The controlling expression of a `switch` statement must evaluate to an integral type (e.g., `int`, `char`, `short`, `long`), an enumeration type, or a class type that has an unambiguous conversion to an integral or enumeration type.",
+            "Incorrect. `std::string` cannot be used directly in a `switch` statement.",
+            "Incorrect. Floating-point types are not allowed due to potential precision issues making exact comparisons unreliable.",
+            "Incorrect. Custom classes cannot be used unless they have a conversion operator to an integral type."
+        ],
+        "correctAnswer": 0
+    },
+    {
+        "subject": "C++ Arrays: Passing to Functions",
+        "question": "What actually happens when you pass an array to a function in C++ like `void func(int arr[])`?",
+        "options": [
+            "A complete copy of the array is made and passed to the function.",
+            "A pointer to the first element of the array is passed to the function.",
+            "A reference to the entire array is passed.",
+            "The size of the array is passed along with a pointer."
+        ],
+        "reasons": [
+            "Incorrect. Passing large arrays by value would be extremely inefficient, so C++ does not do this.",
+            "Correct. The syntax `int arr[]` in a function parameter list is 'syntactic sugar' for `int* arr`. The array 'decays' into a pointer to its first element. This is why modifications to the array inside the function affect the original array.",
+            "Incorrect. To pass a reference to the array itself (preserving size information), you would need to use syntax like `void func(int (&arr)[5])`.",
+            "Incorrect. The size is not passed automatically; you must pass it as a separate argument."
+        ],
+        "correctAnswer": 1
+    },
+    {
+        "subject": "C++ Flow: For Loop",
+        "question": "What is a C++11 range-based for loop?",
+        "options": [
+            "A loop that iterates from a start to an end number, e.g., `for(int i : 1..10)`.",
+            "A loop for iterating over all elements of a container, like an array or vector.",
+            "A loop that is guaranteed to run faster than a traditional for loop.",
+            "A loop that can only be used with pointers."
+        ],
+        "reasons": [
+            "Incorrect. C++ does not have this range syntax.",
+            "Correct. The syntax `for (declaration : range)` iterates through each element in the `range` (which can be an array, an initializer list, or any container that has `begin()` and `end()` methods, like `std::vector`). It simplifies iteration by abstracting away the index or iterators.",
+            "Incorrect. It is primarily for convenience and readability; performance is generally comparable to a traditional iterator-based loop.",
+            "Incorrect. It is designed to work with containers, not raw pointers."
+        ],
+        "correctAnswer": 1
+    },
+    {
+        "subject": "C++ Arrays: Initialization",
+        "question": "What is the output of this code? `int arr[3] = {}; std::cout << arr[1];`",
+        "options": [
+            "A garbage value",
+            "1",
+            "0",
+            "A compile-time error."
+        ],
+        "reasons": [
+            "Incorrect. The array is explicitly initialized.",
+            "Incorrect. No value of 1 is provided.",
+            "Correct. Initializing an array with an empty pair of braces `{}` is a form of value-initialization. For aggregate types like arrays, this means every element is value-initialized. For integers, this means they are all set to 0.",
+            "Incorrect. This is valid C++ syntax."
+        ],
+        "correctAnswer": 2
+    },
+    {
+        "subject": "C++ Flow: Switch & Fallthrough",
+        "question": "What is the final value of `x`? `int x=1; switch(x){ case 1: x+=1; case 2: x+=2; break; case 3: x+=3; }`",
+        "options": [
+            "2",
+            "3",
+            "4",
+            "6"
+        ],
+        "reasons": [
+            "Incorrect. Execution does not stop after `case 1`.",
+            "Incorrect. This would be the result if the switch started at `case 2`.",
+            "Correct. `x` starts at 1. The `switch` jumps to `case 1`. `x` becomes `1+1=2`. There is no `break`, so execution *falls through* to `case 2`. `x` becomes `2+2=4`. A `break` is encountered, so the switch terminates. The final value of `x` is 4.",
+            "Incorrect. `case 3` is never reached because of the `break` in `case 2`."
+        ],
+        "correctAnswer": 2
+    },
+    {
+        "subject": "C++ Arrays: 2D Array to Function",
+        "question": "Which function prototype is a valid way to accept a 2D array of size 5x10?",
+        "options": [
+            "`void func(int arr[][]);`",
+            "`void func(int** arr);`",
+            "`void func(int arr[][10]);`",
+            "`void func(int* arr);`"
+        ],
+        "reasons": [
+            "Incorrect. When passing a multi-dimensional array, all dimensions except the first must be specified.",
+            "Incorrect. A 2D array is not the same as a pointer-to-a-pointer. A 2D array is a single contiguous block of memory, while a pointer-to-a-pointer is an array of pointers.",
+            "Correct. The compiler needs to know the size of all dimensions after the first one to calculate the memory offset for `arr[i][j]`. The formula is effectively `address of arr[0][0] + i * 10 + j`. Without the `10`, this calculation is impossible.",
+            "Incorrect. This would decay the 2D array to a single pointer, losing all dimensional information."
+        ],
+        "correctAnswer": 2
+    },
+    {
+        "subject": "C++ Flow: While Loop",
+        "question": "What does the following `while` loop do? `int n = 123; while(n > 0) { n = n / 10; }`",
+        "options": [
+            "It runs infinitely.",
+            "It runs until `n` becomes 0.",
+            "It calculates the sum of the digits of `n`.",
+            "It reverses the number `n`."
+        ],
+        "reasons": [
+            "Incorrect. Integer division `n / 10` will eventually cause `n` to become 0.",
+            "Correct. This is a standard idiom for processing the digits of a number. Each iteration `n = n / 10` effectively removes the last digit of `n` (due to integer division). 123 -> 12 -> 1 -> 0. The loop terminates when `n` is no longer greater than 0.",
+            "Incorrect. To sum the digits, you would need to use the modulo operator inside the loop (e.g., `sum += n % 10;`).",
+            "Incorrect. To reverse the number, you would need to build a new number inside the loop (e.g., `rev = rev * 10 + n % 10;`)."
+        ],
+        "correctAnswer": 1
+    },
+    {
+        "subject": "C++ Flow: Scope",
+        "question": "What is the output? `int x=10; if(true){ int x=20; std::cout << x; } std::cout << x;`",
+        "options": [
+            "2010",
+            "1020",
+            "2020",
+            "1010"
+        ],
+        "reasons": [
+            "Correct. The inner `int x=20;` creates a new variable `x` that *shadows* the outer `x`. This inner `x` only exists within the `{}` scope of the `if` statement. The first `cout` prints the inner `x` (20). Once the `}` is passed, the inner `x` is destroyed. The second `cout` prints the outer `x`, whose value is still 10.",
+            "Incorrect. The order of execution is sequential.",
+            "Incorrect. The outer `x` is not modified by the inner `x`.",
+            "Incorrect. The inner `x` shadows the outer one."
+        ],
+        "correctAnswer": 0
+    },
+    {
+        "subject": "C++ Arrays: Out of Bounds",
+        "question": "If `char str[] = \"hello\";`, what does `str[5]` contain?",
+        "options": [
+            "The character 'o'.",
+            "A garbage value.",
+            "The null terminator character `\\0`.",
+            "Accessing it is a compile error."
+        ],
+        "reasons": [
+            "Incorrect. Array indexing is 0-based, so 'h' is at index 0 and 'o' is at index 4.",
+            "Incorrect. String literals have a specific character at that position.",
+            "Correct. When a C-style string is initialized with a string literal, the compiler automatically appends a null terminator character `\\0` to mark the end of the string. For \"hello\", the characters are at indices 0-4, and the null terminator is at index 5.",
+            "Incorrect. C++ does not perform bounds checking at compile time."
+        ],
+        "correctAnswer": 2
+    },
+    {
+        "subject": "C++ Flow: Do-While",
+        "question": "What is the final value of `i`? `int i = 5; do { i++; } while(i < 5);`",
+        "options": [
+            "4",
+            "5",
+            "6",
+            "The loop never runs."
+        ],
+        "reasons": [
+            "Incorrect. The value of `i` increases.",
+            "Incorrect. The loop body executes once.",
+            "Correct. A `do-while` loop executes its body at least once. `i` starts at 5. The body `i++` runs, making `i` become 6. Then, the condition `while(i < 5)` (i.e., `6 < 5`) is checked. It is false, so the loop terminates. The final value of `i` is 6.",
+            "Incorrect. A do-while loop always runs its body at least one time."
+        ],
+        "correctAnswer": 2
+    }
+]

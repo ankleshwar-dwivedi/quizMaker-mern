@@ -1,0 +1,342 @@
+[
+    {
+        "subject": "C++ Basics: Structure",
+        "question": "Which part of a C++ program is guaranteed to execute first?",
+        "options": [
+            "The first class constructor.",
+            "The `main()` function.",
+            "Global variable initializations.",
+            "The first preprocessor directive."
+        ],
+        "reasons": [
+            "Incorrect. Constructors are only called when objects are created.",
+            "Incorrect. While `main()` is the entry point, other things happen before its code runs.",
+            "Correct. The C++ standard guarantees that static initialization (including global variables) occurs before any code in the `main` function is executed. This is a crucial setup phase.",
+            "Incorrect. Preprocessor directives are handled during compilation, before the program is even run."
+        ],
+        "correctAnswer": 2
+    },
+    {
+        "subject": "C++ Basics: Tokens",
+        "question": "Which of the following is NOT considered a C++ token?",
+        "options": [
+            "A keyword (e.g., `int`)",
+            "An identifier (e.g., `myVar`)",
+            "A comment (e.g., `// My Comment`)",
+            "A literal (e.g., `101`)"
+        ],
+        "reasons": [
+            "Incorrect. Keywords are fundamental tokens.",
+            "Incorrect. Identifiers are tokens used for naming variables, functions, etc.",
+            "Correct. Comments are completely stripped out by the preprocessor before the tokenization phase of compilation. They are not part of the program's logical structure.",
+            "Incorrect. Literals are tokens representing constant values."
+        ],
+        "correctAnswer": 2
+    },
+    {
+        "subject": "C++ Basics: Initialization",
+        "question": "What is the key difference between `int x = 10;` and `int x(10);` in C++?",
+        "options": [
+            "The first is copy initialization, the second is direct initialization.",
+            "The first is for global variables, the second is for local variables.",
+            "The second one is invalid syntax.",
+            "There is no difference; they are identical."
+        ],
+        "reasons": [
+            "Correct. `int x = 10;` is copy initialization. `int x(10);` is direct initialization. For fundamental types like `int`, there's no practical difference. However, for class types, this distinction can be important, as copy initialization may invoke a copy constructor.",
+            "Incorrect. Both can be used in either scope.",
+            "Incorrect. Both are valid C++ syntax.",
+            "Incorrect. While they produce the same result for `int`, they are syntactically and conceptually different forms of initialization."
+        ],
+        "correctAnswer": 0
+    },
+    {
+        "subject": "C++ Members: Static",
+        "question": "Which statement is true about a `static` member function?",
+        "options": [
+            "It can be called using an object of the class.",
+            "It does not have a `this` pointer.",
+            "It can directly access non-static member variables.",
+            "Both A and B are true."
+        ],
+        "reasons": [
+            "Partially correct. It *can* be called using an object, but the standard way is using the class name and scope resolution operator (`ClassName::func()`).",
+            "Partially correct. This is a fundamental property. Since it's not tied to a specific object, it has no `this` pointer.",
+            "Incorrect. It cannot access non-static members because it doesn't know *which* object's non-static member to access.",
+            "Correct. Both A and B are true statements. A static function can be called via an object (though not recommended) and it fundamentally lacks a `this` pointer."
+        ],
+        "correctAnswer": 3
+    },
+    {
+        "subject": "C++ Members: Constant",
+        "question": "What does the `const` keyword at the end of a member function declaration signify (e.g., `void print() const;`)?",
+        "options": [
+            "The function returns a constant value.",
+            "The function cannot be overridden.",
+            "The function promises not to modify any data members of the object.",
+            "The function can only be called by constant objects."
+        ],
+        "reasons": [
+            "Incorrect. The return type would be declared as `const` (e.g., `const int getVal();`).",
+            "Incorrect. This is achieved using the `final` keyword (in C++11 and later).",
+            "Correct. This makes it a 'const member function'. It's a contract with the compiler that this function will not change the state of the object it is called on. This allows the function to be called on `const` objects.",
+            "Incorrect. It can be called by both `const` and non-`const` objects."
+        ],
+        "correctAnswer": 2
+    },
+    {
+        "subject": "C++ Operators: Unary",
+        "question": "What is the value of `x` after this code? `int a = 5; int x = a++;`",
+        "options": [
+            "4",
+            "5",
+            "6",
+            "Undefined"
+        ],
+        "reasons": [
+            "Incorrect. This would be pre-decrement.",
+            "Correct. This is post-increment. The current value of `a` (which is 5) is first assigned to `x`. *After* the assignment, `a` is incremented to 6. So, `x` holds the value 5.",
+            "Incorrect. This would be the value of `x` if the code was `int x = ++a;` (pre-increment).",
+            "Incorrect. The behavior is well-defined."
+        ],
+        "correctAnswer": 1
+    },
+    {
+        "subject": "C++ Operators: Ternary",
+        "question": "What will be the output of the following code? `int x = 10; int y = 5; std::cout << (x > y ? x : y);`",
+        "options": [
+            "5",
+            "10",
+            "true",
+            "1"
+        ],
+        "reasons": [
+            "Incorrect. The condition `x > y` (10 > 5) is true, so the value before the colon is chosen.",
+            "Correct. The ternary operator `(condition ? value_if_true : value_if_false)` evaluates the condition. Since `10 > 5` is true, it evaluates to the first expression, which is `x`, whose value is 10.",
+            "Incorrect. The expression evaluates to the *value* of `x` or `y`, not the boolean result of the comparison.",
+            "Incorrect. See above."
+        ],
+        "correctAnswer": 1
+    },
+    {
+        "subject": "C++ Operators: Relational & Logical",
+        "question": "What is the output of `std::cout << ( (5 > 3) && (2 < 1) );`?",
+        "options": [
+            "0",
+            "1",
+            "true",
+            "A compile-time error."
+        ],
+        "reasons": [
+            "Correct. The expression `(5 > 3)` is true. The expression `(2 < 1)` is false. The logical AND operator `&&` results in `true && false`, which is `false`. When a boolean `false` is printed to `std::cout`, it is displayed as the integer `0`.",
+            "Incorrect. The expression evaluates to false.",
+            "Incorrect. `std::cout` prints `0` for false by default, not the word 'true' or 'false'.",
+            "Incorrect. The syntax is valid."
+        ],
+        "correctAnswer": 0
+    },
+    {
+        "subject": "C++ Operators: Assignment",
+        "question": "What is the value of `a` after this code executes? `int a = 10; a += 5;`",
+        "options": [
+            "5",
+            "10",
+            "15",
+            "The code is invalid."
+        ],
+        "reasons": [
+            "Incorrect. This would be `a -= 5`.",
+            "Incorrect. The value is modified.",
+            "Correct. The compound assignment operator `+=` adds the right-hand operand to the left-hand operand and assigns the result back to the left-hand operand. It is equivalent to `a = a + 5;`, so `10 + 5` results in 15.",
+            "Incorrect. This is standard C++ syntax."
+        ],
+        "correctAnswer": 2
+    },
+    {
+        "subject": "C++ Features: C++17",
+        "question": "Which of the following is a feature introduced in C++17?",
+        "options": [
+            "Lambda expressions",
+            "Range-based for loops",
+            "Structured bindings",
+            "The `auto` keyword"
+        ],
+        "reasons": [
+            "Incorrect. Lambda expressions were introduced in C++11.",
+            "Incorrect. Range-based for loops were introduced in C++11.",
+            "Correct. Structured bindings allow you to declare multiple variables that are initialized from a tuple or struct, e.g., `auto [key, value] = my_map.begin();`. This was a major feature of C++17.",
+            "Incorrect. The `auto` keyword for type deduction was introduced in C++11."
+        ],
+        "correctAnswer": 2
+    },
+    {
+        "subject": "C++ Basics: Initialization",
+        "question": "What is 'Uniform Initialization' in C++ (introduced in C++11)?",
+        "options": [
+            "Initializing all variables to 0.",
+            "Using braces `{}` for initialization for any type.",
+            "A specific syntax for initializing only static members.",
+            "Using the `new` keyword for all variables."
+        ],
+        "reasons": [
+            "Incorrect. This is zero-initialization, not uniform initialization.",
+            "Correct. Uniform initialization (or brace-initialization) provides a single, consistent syntax using `{}` to initialize any variable, whether it's a primitive, array, or class object. It also has the benefit of preventing 'narrowing conversions' (e.g., `int x {3.14};` would be a compile error).",
+            "Incorrect. It's a general-purpose initialization syntax.",
+            "Incorrect. `new` is for dynamic memory allocation, not general variable initialization."
+        ],
+        "correctAnswer": 1
+    },
+    {
+        "subject": "C++ Operators: Precedence",
+        "question": "What is the value of `result`? `int result = 5 + 3 * 2;`",
+        "options": [
+            "16",
+            "11",
+            "13",
+            "Undefined"
+        ],
+        "reasons": [
+            "Incorrect. This would happen if addition had higher precedence than multiplication `(5+3)*2`.",
+            "Correct. Operator precedence dictates that multiplication `*` is performed before addition `+`. So, the expression is evaluated as `5 + (3 * 2)`, which is `5 + 6`, resulting in 11.",
+            "Incorrect. There is a typo in this option, likely meant to be 11.",
+            "Incorrect. Operator precedence is well-defined."
+        ],
+        "correctAnswer": 1
+    },
+    {
+        "subject": "C++ Members: Constant",
+        "question": "What happens if you try to call a non-const member function on a const object?",
+        "options": [
+            "It works fine, but a warning is issued.",
+            "It causes a run-time error.",
+            "It causes a compile-time error.",
+            "It implicitly converts the object to a non-const object."
+        ],
+        "reasons": [
+            "Incorrect. The compiler will not allow this.",
+            "Incorrect. The error is caught by the compiler before the program runs.",
+            "Correct. A `const` object guarantees that its state will not be changed. Calling a non-const member function would violate this guarantee. Therefore, the compiler enforces this rule and generates a compile-time error.",
+            "Incorrect. There is no such implicit conversion. You would need to use `const_cast` to explicitly remove the const-ness, which is generally unsafe."
+        ],
+        "correctAnswer": 2
+    },
+    {
+        "subject": "C++ Operators: Logical",
+        "question": "What is short-circuiting in the context of logical operators?",
+        "options": [
+            "The operators `&&` and `||` always evaluate both of their operands.",
+            "If the result of a logical expression can be determined from the first operand, the second operand is not evaluated.",
+            "A way to bypass `if` statements.",
+            "A feature that makes logical operations faster on certain hardware."
+        ],
+        "reasons": [
+            "Incorrect. This is the opposite of short-circuiting.",
+            "Correct. For `A && B`, if `A` is false, the entire expression must be false, so `B` is never evaluated. For `A || B`, if `A` is true, the entire expression must be true, so `B` is never evaluated. This is important when the second operand is a function call or has side effects.",
+            "Incorrect. It's a behavior of logical operators, not a replacement for control flow.",
+            "Incorrect. It's a language-level semantic rule, not a hardware feature."
+        ],
+        "correctAnswer": 1
+    },
+    {
+        "subject": "C++ Operators: Unary",
+        "question": "What does the unary `&` operator do?",
+        "options": [
+            "Performs a bitwise AND operation.",
+            "Declares a reference variable.",
+            "Returns the memory address of a variable.",
+            "Dereferences a pointer."
+        ],
+        "reasons": [
+            "Incorrect. That is the binary `&` operator.",
+            "Incorrect. The `&` is used in a type declaration to make it a reference (e.g., `int &ref = x;`), but as a unary operator applied to a variable, it does something else.",
+            "Correct. When used as a unary operator before a variable (e.g., `&myVar`), it is the 'address-of' operator. It evaluates to a pointer containing the memory location of that variable.",
+            "Incorrect. Dereferencing is done with the unary `*` operator."
+        ],
+        "correctAnswer": 2
+    },
+    {
+        "subject": "C++ Basics: Structure",
+        "question": "Where must a C++ class member function be defined if it is not defined inside the class body?",
+        "options": [
+            "It cannot be defined outside the class body.",
+            "In the `main()` function.",
+            "In a separate file, using the scope resolution operator `::`.",
+            "In a special block labeled `definitions:`."
+        ],
+        "reasons": [
+            "Incorrect. It is very common to define member functions outside the class body, especially for larger functions.",
+            "Incorrect. `main()` is for program execution, not for class method definitions.",
+            "Correct. To define a member function outside its class, you must specify which class it belongs to using the syntax `ReturnType ClassName::functionName(params) { ... }`. This is typically done in a `.cpp` source file.",
+            "Incorrect. No such block exists in C++."
+        ],
+        "correctAnswer": 2
+    },
+    {
+        "subject": "C++ Features: C++17",
+        "question": "What does `if constexpr (condition)` allow a programmer to do?",
+        "options": [
+            "Check a condition at run-time, similar to a regular `if`.",
+            "Evaluate a condition at compile-time and discard the 'else' branch from the compiled code if the condition is true.",
+            "Create a constant expression variable.",
+            "Force an `if` statement to be inlined."
+        ],
+        "reasons": [
+            "Incorrect. This is what a regular `if` does. `if constexpr` is for compile-time decisions.",
+            "Correct. `if constexpr` is used in template metaprogramming. The condition must be a compile-time constant expression. The compiler evaluates it and only compiles the code for the branch that is taken, completely discarding the other. This avoids compiling invalid code for certain template instantiations.",
+            "Incorrect. This is done with the `constexpr` keyword on a variable declaration.",
+            "Incorrect. This is not related to inlining."
+        ],
+        "correctAnswer": 1
+    },
+    {
+        "subject": "C++ Members: Static vs Const",
+        "question": "Which declaration is valid inside a C++ class body (prior to C++17)?",
+        "options": [
+            "`static int x = 10;`",
+            "`const int x = 10;`",
+            "`static const int x = 10;`",
+            "None of the above."
+        ],
+        "reasons": [
+            "Incorrect. Non-const static members must be initialized outside the class.",
+            "Incorrect. A non-static const member must be initialized in the constructor's member initializer list.",
+            "Correct. A special exception in the rules allows `static const` members of integral types (like `int`, `char`, `bool`) to be initialized directly inside the class definition. They are treated as compile-time constants.",
+            "Incorrect. Option C is valid."
+        ],
+        "correctAnswer": 2
+    },
+    {
+        "subject": "C++ Operators: Expressions",
+        "question": "What is the value of the expression `5 / 2` in C++?",
+        "options": [
+            "2.5",
+            "2",
+            "3",
+            "A compile-time error."
+        ],
+        "reasons": [
+            "Incorrect. This would be the result of floating-point division (e.g., `5.0 / 2.0`).",
+            "Correct. When both operands of the division operator `/` are integers, C++ performs integer division. This means the fractional part of the result is discarded (truncated). `5 / 2` is 2.5, which truncates to 2.",
+            "Incorrect. The result is truncated, not rounded up.",
+            "Incorrect. The expression is valid."
+        ],
+        "correctAnswer": 1
+    },
+    {
+        "subject": "C++ Operators: Ternary",
+        "question": "Is the following code valid C++? `(a > b ? a : b) = 100;`",
+        "options": [
+            "Yes, it assigns 100 to the larger of `a` and `b`.",
+            "No, because the result of the ternary operator is an rvalue.",
+            "No, it will cause a run-time crash.",
+            "Yes, but only if `a` and `b` are pointers."
+        ],
+        "reasons": [
+            "Correct. In C++, if the second and third operands of the ternary operator are lvalues (like variables `a` and `b`), the result of the entire expression is also an lvalue. This means it refers to an object and can appear on the left side of an assignment. The code will assign 100 to whichever variable, `a` or `b`, is greater.",
+            "Incorrect. Unlike in C, the C++ ternary operator can produce an lvalue.",
+            "Incorrect. The code is well-defined.",
+            "Incorrect. It works for non-pointer types like `int` as well."
+        ],
+        "correctAnswer": 0
+    }
+]
