@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PG-DAC Client-Side Quiz</title>
+    <style>
+        /* All CSS goes here directly */
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f9; color: #333; line-height: 1.6; padding: 20px; }
+        #app-container { max-width: 800px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 30px; }
+        #uploader { padding: 20px; background: #eaf2f8; border: 2px dashed #3498db; border-radius: 8px; margin-bottom: 30px; text-align: center; }
+        #uploader h2 { margin-top: 0; color: #2980b9; }
+        #uploader input[type="file"] { margin-bottom: 15px; }
+        #upload-status { margin-top: 15px; font-weight: bold; }
+        .question-block { margin-bottom: 35px; padding-bottom: 20px; border-bottom: 1px solid #e0e0e0; }
+        .subject-tag { display: inline-block; background-color: #3498db; color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.8em; margin-bottom: 10px; }
+        .question-statement { font-size: 1.2em; font-weight: 600; margin-bottom: 15px; }
+        .options-container .option { display: block; background-color: #ecf0f1; padding: 12px 15px; margin-bottom: 10px; border-radius: 5px; cursor: pointer; transition: background-color 0.3s, transform 0.2s; border: 1px solid #bdc3c7; }
+        .options-container .option:hover { background-color: #dce4e6; transform: translateY(-2px); }
+        .option.correct { background-color: #2ecc71 !important; color: white; border-color: #27ae60; }
+        .option.incorrect { background-color: #e74c3c !important; color: white; border-color: #c0392b; }
+        .options-container.disabled .option { cursor: not-allowed; pointer-events: none; }
+        .reasons-container { display: none; margin-top: 15px; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px; }
+        .reasons-container p { margin: 0 0 10px 0; padding-left: 20px; position: relative; font-size: 0.95em; }
+        .reasons-container p::before { position: absolute; left: 0; font-weight: bold; }
+        .reasons-container p.correct-reason::before { content: '✅'; }
+        .reasons-container p.incorrect-reason::before { content: '❌'; }
+        #timer-display { text-align: center; font-size: 1.1em; color: #8e44ad; font-weight: 500; margin-bottom: 20px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <h1>PG-DAC Interactive Quiz</h1>
+
+        <div id="uploader">
+            <h2>Upload Your Quiz Session File</h2>
+            <input type="file" id="quiz-file-input" accept=".json" required>
+            <div id="upload-status"></div>
+        </div>
+        
+        <div id="timer-display"></div>
+        <div id="quiz-container"></div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const quizContainer = document.getElementById('quiz-container');
+        const fileInput = document.getElementById('quiz-file-input');
+        const uploadStatus = document.getElementById('upload-status');
+        const timerDisplay = document.getElementById('timer-display');
+
+        const SESSION_DURATION = 30 * 60 * 1000; // 30 minutes in milliseconds
+        let sessionTimer = null;
+
+        // --- Session Management ---
+
+        function startSessionTimer() {
+            // Clear any existing timer
+            if (sessionTimer) clearInterval(sessionTimer);
+            
+            const startTime = Date.now();
+            sessionStorage.setItem('quizSessionStart', startTime);
+            timerDisplay.style.display = 'block';
+
+            sessionTimer = setInterval(() => {
+                const elapsed = Date.now() - sessionStorage.getItem('quizSessionStart');
+                if (elapsed >= SESSION_DURATION) {
+                    endSession('Session expired due to 30 minutes of inactivity.');
+                } else {
+                    const timeLeft = SESSION_DURATION - elapsed;
+                    const minutes = Math.floor(timeLeft / 60000);
+                    const seconds = Math.floor((timeLeft % 60000) / 1000).toString().padStart(2, '0');
+                    timerDisplay.textContent = `Session will expire in: ${minutes}:${seconds}`;
+                }
+            }, 1000);
+        }
+
+        function resetSessionTimer() {
+            if (sessionStorage.getItem('quizData')) {
+                // Only reset the timer if a session is active
+                console.log('User activity detected. Resetting session timer.');
+                sessionStorage.setItem('quizSessionStart', Date.now());
+            }
+        }
+
+        function endSession(message) {
+            clearInterval(sessionTimer);
+            sessionStorage.removeItem('quizData');
+            sessionStorage.removeItem('quizSessionStart');
+            alert(message);
+            location.reload(); // Refresh the page to clear everything
+        }
+        
+        // Listen for user activity to reset the timer
+        window.addEventListener('click', resetSessionTimer, true);
+        window.addEventListener('keypress', resetSessionTimer, true);
+
+
+        // --- File Handling and Rendering ---
+
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) {
+                uploadStatus.textContent = 'No file selected.';
+                uploadStatus.style.color = 'orange';
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                try {
+                    const fileContent = e.target.result;
+                    // Validate that it's proper JSON before saving
+                    JSON.parse(fileContent); 
+                    
+                    // Store the raw JSON string in sessionStorage
+                    sessionStorage.setItem('quizData', fileContent);
+                    uploadStatus.textContent = 'File loaded successfully! The quiz is ready.';
+                    uploadStatus.style.color = 'green';
+                    
+                    // Start the session and render the quiz
+                    startSessionTimer();
+                    renderQuiz();
+                } catch (error) {
+                    uploadStatus.textContent = `Error: Invalid JSON file. ${error.message}`;
+                    uploadStatus.style.color = 'red';
+                    quizContainer.innerHTML = '';
+                }
+            };
+            
+            reader.onerror = () => {
+                uploadStatus.textContent = 'Error reading the file.';
+                uploadStatus.style.color = 'red';
+            };
+
+            reader.readAsText(file);
+        });
+
+        function renderQuiz() {
+            const quizDataString = sessionStorage.getItem('quizData');
+            if (!quizDataString) {
+                quizContainer.innerHTML = '<p>Please upload a quiz.json file to begin.</p>';
+                return;
+            }
+
+            quizContainer.innerHTML = ''; // Clear previous content
+            const questions = JSON.parse(quizDataString);
+
+            questions.forEach((q, index) => {
+                const questionBlock = document.createElement('div');
+                questionBlock.className = 'question-block';
+                const subjectTag = document.createElement('span');
+                subjectTag.className = 'subject-tag';
+                subjectTag.textContent = q.subject;
+                questionBlock.appendChild(subjectTag);
+                const questionStatement = document.createElement('p');
+                questionStatement.className = 'question-statement';
+                questionStatement.textContent = `Q${index + 1}: ${q.question}`;
+                questionBlock.appendChild(questionStatement);
+                const optionsContainer = document.createElement('div');
+                optionsContainer.className = 'options-container';
+                q.options.forEach((optionText, optionIndex) => {
+                    const option = document.createElement('div');
+                    option.className = 'option';
+                    option.textContent = optionText;
+                    option.dataset.index = optionIndex;
+                    optionsContainer.appendChild(option);
+                });
+                questionBlock.appendChild(optionsContainer);
+                const reasonsContainer = document.createElement('div');
+                reasonsContainer.className = 'reasons-container';
+                q.reasons.forEach((reasonText, reasonIndex) => {
+                    const reason = document.createElement('p');
+                    reason.textContent = reasonText;
+                    reason.className = (reasonIndex === q.correctAnswer) ? 'correct-reason' : 'incorrect-reason';
+                    reasonsContainer.appendChild(reason);
+                });
+                questionBlock.appendChild(reasonsContainer);
+                quizContainer.appendChild(questionBlock);
+            });
+            addOptionClickListeners();
+        }
+
+        function addOptionClickListeners() {
+            document.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', handleOptionClick);
+            });
+        }
+
+        function handleOptionClick(event) {
+            const selectedOption = event.target;
+            const questionBlock = selectedOption.closest('.question-block');
+            const optionsContainer = selectedOption.closest('.options-container');
+
+            // Prevent re-clicking
+            if (optionsContainer.classList.contains('disabled')) return;
+
+            const reasonsContainer = questionBlock.querySelector('.reasons-container');
+            const quizData = JSON.parse(sessionStorage.getItem('quizData'));
+            const questionIndex = Array.from(quizContainer.children).indexOf(questionBlock);
+            const question = quizData[questionIndex];
+            const selectedAnswerIndex = parseInt(selectedOption.dataset.index);
+            const correctAnswerIndex = question.correctAnswer;
+            
+            if (selectedAnswerIndex === correctAnswerIndex) {
+                selectedOption.classList.add('correct');
+            } else {
+                selectedOption.classList.add('incorrect');
+                const correctOption = optionsContainer.querySelector(`[data-index='${correctAnswerIndex}']`);
+                correctOption.classList.add('correct');
+            }
+            
+            optionsContainer.classList.add('disabled');
+            reasonsContainer.style.display = 'block';
+        }
+        
+        // On page load, check if a session already exists and render it
+        if (sessionStorage.getItem('quizData')) {
+            uploadStatus.textContent = 'Previous quiz session restored.';
+            uploadStatus.style.color = 'blue';
+            startSessionTimer(); // Restart the timer for the restored session
+            renderQuiz();
+        }
+    });
+    </script>
+
+</body>
+</html>
