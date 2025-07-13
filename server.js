@@ -4,33 +4,23 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
-const PORT = 3000;
+
+// --- In-Memory Storage ---
+// This variable will hold our quiz data after it's uploaded.
+// It will persist as long as the serverless function instance is warm.
+let quizData = null; 
 
 // --- Middleware ---
-// Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
 
 // --- File Upload Configuration (using Multer) ---
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        // Create the 'uploads' directory if it doesn't exist
-        const uploadDir = path.join(__dirname, 'uploads');
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir);
-        }
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        // Always name the uploaded file 'quiz.json'
-        cb(null, 'quiz.json');
-    }
-});
+// We'll use memory storage instead of disk storage.
+const storage = multer.memoryStorage();
 
-const upload = multer({ 
+const upload = multer({
     storage: storage,
     fileFilter: (req, file, cb) => {
-        // Accept only .json files
-        if (path.extname(file.originalname) !== '.json') {
+        if (file.mimetype !== 'application/json') {
             return cb(new Error('Only .json files are allowed!'), false);
         }
         cb(null, true);
@@ -44,28 +34,31 @@ app.post('/api/upload', upload.single('quizfile'), (req, res) => {
     if (!req.file) {
         return res.status(400).send('No file uploaded or file was not a .json');
     }
-    res.status(200).json({ message: 'File uploaded successfully!', path: req.file.path });
+
+    try {
+        // The file content is in a buffer. Convert it to a string.
+        const fileContent = req.file.buffer.toString('utf8');
+        // Parse the string into a JSON object and store it in our in-memory variable.
+        quizData = JSON.parse(fileContent);
+        
+        res.status(200).json({ message: 'File processed and quiz is ready!' });
+
+    } catch (error) {
+        // If JSON.parse fails, the file is invalid.
+        quizData = null; // Reset on error
+        res.status(400).json({ error: 'Invalid JSON format in the uploaded file.' });
+    }
 });
 
 // 2. Route to get the quiz data
 app.get('/api/quiz', (req, res) => {
-    const quizPath = path.join(__dirname, 'uploads', 'quiz.json');
-    
-    fs.readFile(quizPath, 'utf8', (err, data) => {
-        if (err) {
-            // If the file doesn't exist, return an empty array or an error message
-            return res.status(404).json({ error: 'Quiz file not found. Please upload a quiz.json file.' });
-        }
-        try {
-            const jsonData = JSON.parse(data);
-            res.status(200).json(jsonData);
-        } catch (parseError) {
-            res.status(500).json({ error: 'Error parsing JSON file.' });
-        }
-    });
+    if (quizData) {
+        // If data exists in our variable, send it.
+        res.status(200).json(quizData);
+    } else {
+        // If no data has been uploaded yet.
+        res.status(404).json({ error: 'Quiz file not found. Please upload a quiz.json file.' });
+    }
 });
 
-// --- Start the Server ---
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+module.exports = app;
