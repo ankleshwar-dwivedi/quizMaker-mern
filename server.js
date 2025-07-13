@@ -1,25 +1,27 @@
+// server.js - CORRECT VERSION FOR VERCEL
+
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
 
 const app = express();
 
 // --- In-Memory Storage ---
-// This variable will hold our quiz data after it's uploaded.
-// It will persist as long as the serverless function instance is warm.
+// This variable will hold the quiz data after it's uploaded.
 let quizData = null; 
 
 // --- Middleware ---
+// IMPORTANT: This line is necessary for Vercel to find your HTML/CSS.
+// It tells Express where to look for static files.
 app.use(express.static(path.join(__dirname, 'public')));
 
-// --- File Upload Configuration (using Multer) ---
-// We'll use memory storage instead of disk storage.
+// --- File Upload Configuration (using Multer for memory storage) ---
 const storage = multer.memoryStorage();
 
 const upload = multer({
     storage: storage,
     fileFilter: (req, file, cb) => {
+        // We check the mimetype for better reliability
         if (file.mimetype !== 'application/json') {
             return cb(new Error('Only .json files are allowed!'), false);
         }
@@ -32,7 +34,7 @@ const upload = multer({
 // 1. Route to handle file uploads
 app.post('/api/upload', upload.single('quizfile'), (req, res) => {
     if (!req.file) {
-        return res.status(400).send('No file uploaded or file was not a .json');
+        return res.status(400).json({ error: 'No file uploaded or file was not a .json' });
     }
 
     try {
@@ -44,7 +46,7 @@ app.post('/api/upload', upload.single('quizfile'), (req, res) => {
         res.status(200).json({ message: 'File processed and quiz is ready!' });
 
     } catch (error) {
-        // If JSON.parse fails, the file is invalid.
+        // If JSON.parse fails, the uploaded file is invalid.
         quizData = null; // Reset on error
         res.status(400).json({ error: 'Invalid JSON format in the uploaded file.' });
     }
@@ -61,4 +63,6 @@ app.get('/api/quiz', (req, res) => {
     }
 });
 
+// Vercel handles the server listening part, so we export the app.
+// The app.listen() part is not needed for Vercel.
 module.exports = app;
