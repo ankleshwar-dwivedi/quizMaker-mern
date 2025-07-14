@@ -3,304 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PG-DAC Advanced Quiz Platform</title>
-    <style>
-        /* Base Styles */
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f9; color: #333; line-height: 1.6; padding: 20px; padding-top: 80px; /* Add padding to top to avoid overlap with fixed timer */ }
-        #app-container { max-width: 800px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #2c3e50; margin-bottom: 30px; }
-
-        /* Uploader and Settings Section */
-        #settings-container { padding: 20px; background: #eaf2f8; border: 2px dashed #3498db; border-radius: 8px; margin-bottom: 30px; }
-        .setting-row { display: flex; align-items: center; justify-content: center; margin-bottom: 15px; flex-wrap: wrap; }
-        .setting-row label { font-weight: 600; margin-right: 10px; }
-        .setting-row input[type="file"], .setting-row input[type="number"] { max-width: 200px; }
-        .mode-selection label { margin-left: 5px; margin-right: 15px; font-weight: normal; }
-        #start-quiz-btn { display: block; width: 100%; padding: 12px; font-size: 1.2em; background-color: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 15px; }
-        #start-quiz-btn:hover { background-color: #229954; }
-        #upload-status { margin-top: 15px; font-weight: bold; text-align: center; }
-
-        /* Timer Display (Fixed) */
-        #timer-display { position: fixed; top: 0; left: 0; width: 100%; background-color: #8e44ad; color: white; text-align: center; padding: 10px 0; font-size: 1.2em; font-weight: 500; z-index: 1000; display: none; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-
-        /* Quiz Question Styles */
-        .question-block { margin-bottom: 35px; padding-bottom: 20px; border-bottom: 1px solid #e0e0e0; }
-        .subject-tag { display: inline-block; background-color: #3498db; color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.8em; margin-bottom: 10px; }
-        .question-statement { font-size: 1.2em; font-weight: 600; margin-bottom: 15px; }
-        .options-container .option { display: block; background-color: #ecf0f1; padding: 12px 15px; margin-bottom: 10px; border-radius: 5px; cursor: pointer; transition: background-color 0.3s, transform 0.2s; border: 1px solid #bdc3c7; }
-        .options-container .option:hover:not(.selected) { background-color: #dce4e6; transform: translateY(-2px); }
-
-        /* Feedback and Selection Styles */
-        .option.correct { background-color: #2ecc71 !important; color: white; border-color: #27ae60; }
-        .option.incorrect { background-color: #e74c3c !important; color: white; border-color: #c0392b; }
-        .option.selected { background-color: #9b59b6 !important; color: white; border-color: #8e44ad; } /* For Test Mode Selection */
-        .options-container.disabled .option { cursor: not-allowed; pointer-events: none; opacity: 0.8; }
-        
-        .reasons-container { display: none; margin-top: 15px; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px; }
-        .reasons-container p { margin: 0 0 10px 0; padding-left: 20px; position: relative; font-size: 0.95em; }
-        .reasons-container p::before { position: absolute; left: 0; font-weight: bold; }
-        .reasons-container p.correct-reason::before { content: '✅'; }
-        .reasons-container p.incorrect-reason::before { content: '❌'; }
-        
-        /* Submit Button */
-        #submit-test-btn { display: none; width: 50%; margin: 20px auto; padding: 15px; font-size: 1.2em; background-color: #e67e22; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        #submit-test-btn:hover { background-color: #d35400; }
-        #results-summary { text-align: center; font-size: 1.5em; font-weight: bold; margin-bottom: 20px; }
-    </style>
+    <title>PG-DAC Pro Quiz Platform</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
     <div id="app-container">
-        <h1>PG-DAC Advanced Quiz Platform</h1>
-        <div id="timer-display">Session Timer</div>
-
-        <div id="settings-container">
-            <div class="setting-row">
-                <label for="quiz-file-input">1. Choose Quiz File:</label>
-                <input type="file" id="quiz-file-input" accept=".json" required>
+        <!-- Sidebar for Question Navigation -->
+        <div id="sidebar">
+            <h2>Question Palette</h2>
+            <div id="question-palette">
+                <!-- Palette buttons will be generated here -->
             </div>
-            <div class="setting-row">
-                <label for="quiz-duration-input">2. Set Duration (minutes):</label>
-                <input type="number" id="quiz-duration-input" value="30" min="1" required>
-            </div>
-            <div class="setting-row mode-selection">
-                <label>3. Select Mode:</label>
-                <input type="radio" id="mode-practice" name="quiz_mode" value="practice" checked>
-                <label for="mode-practice">Practice</label>
-                <input type="radio" id="mode-test" name="quiz_mode" value="test">
-                <label for="mode-test">Test</label>
-            </div>
-            <button id="start-quiz-btn">Start Quiz</button>
-            <div id="upload-status"></div>
         </div>
-        
-        <div id="results-summary"></div>
-        <div id="quiz-container"></div>
-        <button id="submit-test-btn">Submit Test</button>
+
+        <!-- Main Content Area -->
+        <div id="main-content">
+            <h1>PG-DAC Pro Quiz Platform</h1>
+            <div id="timer-display">Session Timer</div>
+
+            <div id="settings-container">
+                <h2>Quiz Setup</h2>
+                <div class="setting-row">
+                    <label for="quiz-file-input">1. Choose Quiz File:</label>
+                    <input type="file" id="quiz-file-input" accept=".json" required>
+                </div>
+                <div class="setting-row">
+                    <label for="quiz-duration-input">2. Set Duration (minutes):</label>
+                    <input type="number" id="quiz-duration-input" value="30" min="1" required>
+                </div>
+                <div class="setting-row mode-selection">
+                    <label>3. Select Mode:</label>
+                    <input type="radio" id="mode-practice" name="quiz_mode" value="practice" checked>
+                    <label for="mode-practice">Practice</label>
+                    <input type="radio" id="mode-test" name="quiz_mode" value="test">
+                    <label for="mode-test">Test</label>
+                </div>
+                <button id="start-quiz-btn">Start Quiz</button>
+                <div id="upload-status"></div>
+            </div>
+            
+            <div id="results-summary"></div>
+            <div id="quiz-container">
+                <!-- Quiz questions will be rendered here -->
+            </div>
+            
+            <div id="pagination-container">
+                <!-- Pagination controls will be rendered here -->
+            </div>
+            <button id="submit-test-btn">Submit Test</button>
+        </div>
     </div>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const settingsContainer = document.getElementById('settings-container');
-        const quizContainer = document.getElementById('quiz-container');
-        const fileInput = document.getElementById('quiz-file-input');
-        const durationInput = document.getElementById('quiz-duration-input');
-        const startQuizBtn = document.getElementById('start-quiz-btn');
-        const submitTestBtn = document.getElementById('submit-test-btn');
-        const uploadStatus = document.getElementById('upload-status');
-        const timerDisplay = document.getElementById('timer-display');
-        const resultsSummary = document.getElementById('results-summary');
+    <!-- Templates for dynamic content -->
+    <template id="question-template">
+        <div class="question-block">
+            <span class="subject-tag"></span>
+            <div class="question-header">
+                <p class="question-statement"></p>
+                <button class="mark-review-btn">Mark for Review</button>
+            </div>
+            <pre class="code-snippet-container"><code></code></pre>
+            <div class="options-container"></div>
+            <div class="reasons-container"></div>
+        </div>
+    </template>
 
-        let sessionTimer = null;
-        let userAnswers = {}; // To store answers in Test Mode
-
-        // --- Event Listeners ---
-        startQuizBtn.addEventListener('click', handleQuizStart);
-        submitTestBtn.addEventListener('click', handleSubmitTest);
-        
-        // --- Session & Timer Management ---
-        function startSessionTimer(durationMinutes) {
-            if (sessionTimer) clearInterval(sessionTimer);
-            
-            const sessionDuration = durationMinutes * 60 * 1000;
-            const startTime = Date.now();
-            sessionStorage.setItem('quizSessionStart', startTime);
-            sessionStorage.setItem('quizDuration', sessionDuration);
-            timerDisplay.style.display = 'block';
-
-            sessionTimer = setInterval(() => {
-                const elapsed = Date.now() - sessionStorage.getItem('quizSessionStart');
-                if (elapsed >= sessionDuration) {
-                    endSession('Time is up!');
-                } else {
-                    const timeLeft = sessionDuration - elapsed;
-                    const minutes = Math.floor(timeLeft / 60000);
-                    const seconds = Math.floor((timeLeft % 60000) / 1000).toString().padStart(2, '0');
-                    timerDisplay.textContent = `Time Left: ${minutes}:${seconds}`;
-                }
-            }, 1000);
-        }
-
-        function endSession(message) {
-            clearInterval(sessionTimer);
-            if (sessionStorage.getItem('quizMode') === 'test' && !document.body.dataset.submitted) {
-                // If in test mode and not yet submitted, auto-submit
-                handleSubmitTest();
-            }
-            alert(message);
-        }
-        
-        // --- Core Quiz Logic ---
-        function handleQuizStart() {
-            const file = fileInput.files[0];
-            if (!file) {
-                uploadStatus.textContent = 'Please select a quiz file first!';
-                uploadStatus.style.color = 'red';
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const fileContent = e.target.result;
-                    JSON.parse(fileContent); // Validate JSON
-                    
-                    sessionStorage.setItem('quizData', fileContent);
-                    const mode = document.querySelector('input[name="quiz_mode"]:checked').value;
-                    sessionStorage.setItem('quizMode', mode);
-                    userAnswers = {}; // Reset answers for new session
-                    sessionStorage.removeItem('userAnswers');
-
-                    settingsContainer.style.display = 'none';
-                    const duration = parseInt(durationInput.value, 10);
-                    startSessionTimer(duration);
-                    renderQuiz();
-                } catch (error) {
-                    uploadStatus.textContent = `Error: Invalid JSON file. ${error.message}`;
-                    uploadStatus.style.color = 'red';
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        function renderQuiz() {
-            const quizDataString = sessionStorage.getItem('quizData');
-            if (!quizDataString) return;
-
-            quizContainer.innerHTML = '';
-            const questions = JSON.parse(quizDataString);
-            const mode = sessionStorage.getItem('quizMode');
-
-            questions.forEach((q, index) => {
-                const questionBlock = document.createElement('div');
-                questionBlock.className = 'question-block';
-                questionBlock.dataset.questionIndex = index;
-                // ... (rest of the element creation is the same)
-                const subjectTag = document.createElement('span');
-                subjectTag.className = 'subject-tag';
-                subjectTag.textContent = q.subject;
-                questionBlock.appendChild(subjectTag);
-                const questionStatement = document.createElement('p');
-                questionStatement.className = 'question-statement';
-                questionStatement.textContent = `Q${index + 1}: ${q.question}`;
-                questionBlock.appendChild(questionStatement);
-                const optionsContainer = document.createElement('div');
-                optionsContainer.className = 'options-container';
-                q.options.forEach((optionText, optionIndex) => {
-                    const option = document.createElement('div');
-                    option.className = 'option';
-                    option.textContent = optionText;
-                    option.dataset.index = optionIndex;
-                    optionsContainer.appendChild(option);
-                });
-                questionBlock.appendChild(optionsContainer);
-                const reasonsContainer = document.createElement('div');
-                reasonsContainer.className = 'reasons-container';
-                q.reasons.forEach((reasonText, reasonIndex) => {
-                    const reason = document.createElement('p');
-                    reason.textContent = reasonText;
-                    reason.className = (reasonIndex === q.correctAnswer) ? 'correct-reason' : 'incorrect-reason';
-                    reasonsContainer.appendChild(reason);
-                });
-                questionBlock.appendChild(reasonsContainer);
-                quizContainer.appendChild(questionBlock);
-            });
-            addOptionClickListeners();
-            if (mode === 'test') {
-                submitTestBtn.style.display = 'block';
-            }
-        }
-
-        function addOptionClickListeners() {
-            document.querySelectorAll('.option').forEach(option => {
-                option.addEventListener('click', handleOptionClick);
-            });
-        }
-
-        function handleOptionClick(event) {
-            const selectedOption = event.target;
-            const questionBlock = selectedOption.closest('.question-block');
-            const optionsContainer = selectedOption.closest('.options-container');
-            const questionIndex = questionBlock.dataset.questionIndex;
-            const selectedAnswerIndex = parseInt(selectedOption.dataset.index, 10);
-
-            const mode = sessionStorage.getItem('quizMode');
-
-            if (mode === 'practice') {
-                if (optionsContainer.classList.contains('disabled')) return;
-                showPracticeFeedback(selectedOption);
-            } else if (mode === 'test') {
-                // In test mode, just highlight selection
-                // Clear previous selection in the same question
-                optionsContainer.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
-                selectedOption.classList.add('selected');
-                userAnswers[questionIndex] = selectedAnswerIndex;
-                sessionStorage.setItem('userAnswers', JSON.stringify(userAnswers));
-            }
-        }
-
-        function showPracticeFeedback(selectedOption) {
-            const questionBlock = selectedOption.closest('.question-block');
-            const optionsContainer = selectedOption.closest('.options-container');
-            const reasonsContainer = questionBlock.querySelector('.reasons-container');
-            const quizData = JSON.parse(sessionStorage.getItem('quizData'));
-            const questionIndex = questionBlock.dataset.questionIndex;
-            const question = quizData[questionIndex];
-            const selectedAnswerIndex = parseInt(selectedOption.dataset.index, 10);
-            const correctAnswerIndex = question.correctAnswer;
-            
-            if (selectedAnswerIndex === correctAnswerIndex) {
-                selectedOption.classList.add('correct');
-            } else {
-                selectedOption.classList.add('incorrect');
-                const correctOption = optionsContainer.querySelector(`[data-index='${correctAnswerIndex}']`);
-                correctOption.classList.add('correct');
-            }
-            
-            optionsContainer.classList.add('disabled');
-            reasonsContainer.style.display = 'block';
-        }
-
-        function handleSubmitTest() {
-            document.body.dataset.submitted = 'true'; // Mark as submitted
-            clearInterval(sessionTimer);
-            timerDisplay.style.color = '#e67e22';
-            submitTestBtn.style.display = 'none';
-
-            const quizData = JSON.parse(sessionStorage.getItem('quizData'));
-            const savedAnswers = JSON.parse(sessionStorage.getItem('userAnswers') || '{}');
-            let score = 0;
-
-            quizData.forEach((question, index) => {
-                const questionBlock = document.querySelector(`.question-block[data-question-index='${index}']`);
-                const optionsContainer = questionBlock.querySelector('.options-container');
-                const reasonsContainer = questionBlock.querySelector('.reasons-container');
-                const correctAnswerIndex = question.correctAnswer;
-                const userAnswerIndex = savedAnswers[index];
-
-                optionsContainer.classList.add('disabled');
-                
-                if (userAnswerIndex !== undefined) {
-                    const selectedOption = optionsContainer.querySelector(`[data-index='${userAnswerIndex}']`);
-                    if (userAnswerIndex === correctAnswerIndex) {
-                        selectedOption.classList.add('correct');
-                        score++;
-                    } else {
-                        selectedOption.classList.add('incorrect');
-                        const correctOption = optionsContainer.querySelector(`[data-index='${correctAnswerIndex}']`);
-                        correctOption.classList.add('correct');
-                    }
-                } else {
-                    // Question was not answered, just show the correct one
-                    const correctOption = optionsContainer.querySelector(`[data-index='${correctAnswerIndex}']`);
-                    correctOption.classList.add('correct');
-                }
-                reasonsContainer.style.display = 'block';
-            });
-            resultsSummary.textContent = `Test Complete! Your Score: ${score} / ${quizData.length}`;
-        }
-    });
-    </script>
-
+    <!-- Link to JavaScript files -->
+    <script src="js/state.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
