@@ -9,17 +9,15 @@
 <body>
     <div id="app-container">
         <!-- Sidebar for Question Navigation -->
-        <div id="sidebar">
+        <div id="sidebar" class="hidden">
             <h2>Question Palette</h2>
-            <div id="question-palette">
-                <!-- Palette buttons will be generated here -->
-            </div>
+            <div id="question-palette"></div>
         </div>
 
         <!-- Main Content Area -->
         <div id="main-content">
-            <h1>PG-DAC Pro Quiz Platform</h1>
             <div id="timer-display">Session Timer</div>
+            <h1>PG-DAC Pro Quiz Platform</h1>
 
             <div id="settings-container">
                 <h2>Quiz Setup</h2>
@@ -42,27 +40,24 @@
                 <div id="upload-status"></div>
             </div>
             
-            <div id="results-summary"></div>
-            <div id="quiz-container">
-                <!-- Quiz questions will be rendered here -->
+            <div id="quiz-area" class="hidden">
+                <div id="results-summary"></div>
+                <div id="quiz-container"></div>
+                <div id="pagination-container"></div>
+                <button id="submit-test-btn" class="hidden">Submit Test</button>
             </div>
-            
-            <div id="pagination-container">
-                <!-- Pagination controls will be rendered here -->
-            </div>
-            <button id="submit-test-btn">Submit Test</button>
         </div>
     </div>
 
-    <!-- Templates for dynamic content -->
+    <!-- Template for a single question -->
     <template id="question-template">
         <div class="question-block">
             <span class="subject-tag"></span>
             <div class="question-header">
                 <p class="question-statement"></p>
-                <button class="mark-review-btn">Mark for Review</button>
+                <button class="mark-review-btn" title="Mark for Review">⭐</button>
             </div>
-            <pre class="code-snippet-container"><code></code></pre>
+            <!-- Code snippets will be inserted here by JS if they exist -->
             <div class="options-container"></div>
             <div class="reasons-container"></div>
         </div>

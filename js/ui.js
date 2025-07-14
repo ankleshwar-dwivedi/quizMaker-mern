@@ -1,4 +1,6 @@
-// js/ui.js
+// js/ui.js - (Only the showCurrentPageQuestions function is changed)
+// ... (keep all the other functions from the previous version)
+
 const UI = {
     // --- Element Getters ---
     get elements() {
@@ -18,18 +20,20 @@ const UI = {
 
     // --- High-Level UI State Changers ---
     showQuizScreen() {
-        const { settingsContainer, quizArea, sidebar, body } = this.elements;
+        const { settingsContainer, quizArea, sidebar, body, timerDisplay } = this.elements;
         settingsContainer.classList.add('hidden');
         quizArea.classList.remove('hidden');
         sidebar.classList.remove('hidden');
-        body.classList.add('quiz-active'); // Add class to body for padding
+        timerDisplay.classList.remove('hidden');
+        body.classList.add('quiz-active');
     },
 
     showSettingsScreen() {
-        const { settingsContainer, quizArea, sidebar, body } = this.elements;
+        const { settingsContainer, quizArea, sidebar, body, timerDisplay } = this.elements;
         settingsContainer.classList.remove('hidden');
         quizArea.classList.add('hidden');
         sidebar.classList.add('hidden');
+        timerDisplay.classList.add('hidden');
         body.classList.remove('quiz-active');
     },
 
@@ -41,9 +45,9 @@ const UI = {
             const questionNode = this.createQuestionElement(q, index);
             quizContainer.appendChild(questionNode);
         });
-        this.updatePalette();
         this.updatePagination();
         this.showCurrentPageQuestions();
+        this.updatePalette();
     },
 
     createQuestionElement(q, index) {
@@ -61,6 +65,7 @@ const UI = {
         this.renderOptions(questionBlock, q.options, index);
         
         const markBtn = questionBlock.querySelector('.mark-review-btn');
+        markBtn.classList.toggle('marked', AppState.markedForReview.has(index));
         markBtn.addEventListener('click', () => {
             AppState.toggleReviewMark(index);
             this.updatePalette();
@@ -86,7 +91,6 @@ const UI = {
             option.className = 'option';
             option.textContent = optText;
             option.dataset.index = optIndex;
-            // The event listener is now handled centrally in main.js
             optionsContainer.appendChild(option);
         });
     },
@@ -107,14 +111,13 @@ const UI = {
             if (i === AppState.currentQuestionIndex) btn.classList.add('current');
             
             btn.addEventListener('click', () => {
+                AppState.currentQuestionIndex = i;
                 const newPage = Math.floor(i / AppState.questionsPerPage);
                 if (AppState.currentPage !== newPage) {
                     AppState.currentPage = newPage;
                     this.updatePagination();
-                    this.showCurrentPageQuestions();
                 }
-                AppState.currentQuestionIndex = i;
-                this.updatePalette();
+                this.showCurrentPageQuestions();
             });
             paletteContainer.appendChild(btn);
         }
@@ -142,12 +145,13 @@ const UI = {
         document.getElementById('next-btn').addEventListener('click', Main.nextPage);
     },
 
+    // *** FIX IS HERE ***
     showCurrentPageQuestions() {
         const start = AppState.currentPage * AppState.questionsPerPage;
         const end = start + AppState.questionsPerPage;
         document.querySelectorAll('.question-block').forEach((block, index) => {
-            // Only the question corresponding to currentQuestionIndex on the current page is active
-            block.classList.toggle('active', index === AppState.currentQuestionIndex);
+            // This logic is now simpler and more correct for pagination
+            block.classList.toggle('active', index >= start && index < end);
         });
         this.updatePalette();
     },
@@ -170,13 +174,12 @@ const UI = {
             reasonsContainer.appendChild(reason);
         });
 
-        // Ensure selectedOption exists before adding class
         if(selectedAnswerIndex !== undefined) {
              const selectedOption = optionsContainer.querySelector(`[data-index='${selectedAnswerIndex}']`);
              if (selectedAnswerIndex === correctAnswerIndex) {
-                selectedOption.classList.add('correct');
+                if(selectedOption) selectedOption.classList.add('correct');
             } else {
-                selectedOption.classList.add('incorrect');
+                if(selectedOption) selectedOption.classList.add('incorrect');
             }
         }
        

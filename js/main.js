@@ -1,11 +1,28 @@
 // js/main.js
 const Main = {
     init() {
-        document.getElementById('start-quiz-btn').addEventListener('click', this.handleQuizStart);
-        document.getElementById('submit-test-btn').addEventListener('click', this.handleSubmitTest);
+        // This is the only place we should get elements, right at the start.
+        this.cacheDOMElements();
+        this.addEventListeners();
         
-        // Centralized event listener for options
-        UI.elements.quizContainer.addEventListener('click', (event) => {
+        if (AppState.loadFromSession()) {
+            this.startSessionFromState();
+        }
+    },
+
+    cacheDOMElements() {
+        this.dom = {
+            startQuizBtn: document.getElementById('start-quiz-btn'),
+            submitTestBtn: document.getElementById('submit-test-btn'),
+            quizContainer: document.getElementById('quiz-container')
+        };
+    },
+
+    addEventListeners() {
+        this.dom.startQuizBtn.addEventListener('click', () => this.handleQuizStart());
+        this.dom.submitTestBtn.addEventListener('click', () => this.handleSubmitTest());
+        
+        this.dom.quizContainer.addEventListener('click', (event) => {
             if (event.target.classList.contains('option')) {
                 const questionBlock = event.target.closest('.question-block');
                 const qIndex = parseInt(questionBlock.dataset.questionIndex, 10);
@@ -13,10 +30,6 @@ const Main = {
                 this.handleOptionClick(qIndex, oIndex);
             }
         });
-
-        if (AppState.loadFromSession()) {
-            this.startSessionFromState();
-        }
     },
 
     handleQuizStart() {
@@ -33,7 +46,6 @@ const Main = {
                 const fileContent = e.target.result;
                 AppState.reset();
                 const parsedData = JSON.parse(fileContent);
-                // FIX: Ensure the parsed data is an array
                 if (!Array.isArray(parsedData)) {
                     throw new Error("JSON file must contain an array of questions.");
                 }
@@ -43,7 +55,7 @@ const Main = {
                 sessionStorage.setItem('quizData', fileContent);
                 sessionStorage.setItem('quizMode', AppState.quizMode);
                 
-                Main.startSessionFromState();
+                this.startSessionFromState();
             } catch (error) {
                 alert(`Error: ${error.message}`);
             }
@@ -60,12 +72,11 @@ const Main = {
         this.startSessionTimer(duration);
 
         if (AppState.quizMode === 'test') {
-            UI.elements.submitBtn.style.display = 'block';
+            UI.elements.submitBtn.classList.remove('hidden');
         }
     },
 
     startSessionTimer(durationMinutes) {
-        // ... (This function remains the same as before)
         if (AppState.sessionTimer) clearInterval(AppState.sessionTimer);
         const sessionDuration = sessionStorage.getItem('quizSessionStart') ? parseInt(sessionStorage.getItem('quizDuration'), 10) : durationMinutes * 60 * 1000;
         const startTime = parseInt(sessionStorage.getItem('quizSessionStart') || Date.now(), 10);
@@ -97,13 +108,13 @@ const Main = {
 
     handleOptionClick(questionIndex, selectedAnswerIndex) {
         if (AppState.isSubmitted) return;
-
+        AppState.currentQuestionIndex = questionIndex;
         AppState.saveAnswer(questionIndex, selectedAnswerIndex);
         UI.updatePalette();
         
         if (AppState.quizMode === 'practice') {
             UI.showFeedback(questionIndex, selectedAnswerIndex);
-        } else { // Test mode
+        } else {
             const questionBlock = document.querySelector(`.question-block[data-question-index='${questionIndex}']`);
             questionBlock.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
             const selectedOption = questionBlock.querySelector(`.option[data-index='${selectedAnswerIndex}']`);
@@ -114,26 +125,25 @@ const Main = {
     handleSubmitTest() {
         if (AppState.isSubmitted) return;
         AppState.isSubmitted = true;
-        
         clearInterval(AppState.sessionTimer);
         UI.elements.timerDisplay.style.color = '#e67e22';
-        UI.elements.submitBtn.style.display = 'none';
+        UI.elements.submitBtn.classList.add('hidden');
         UI.elements.paginationContainer.classList.add('hidden');
-
         let score = 0;
         AppState.quizData.forEach((question, index) => {
             if (AppState.userAnswers[index] === question.correctAnswer) score++;
             UI.showFeedback(index, AppState.userAnswers[index]);
+            document.querySelector(`.question-block[data-question-index='${index}']`).classList.add('active');
         });
-        
         UI.elements.resultsSummary.textContent = `Test Complete! Your Score: ${score} / ${AppState.quizData.length}`;
-        document.querySelectorAll('.question-block').forEach(block => block.classList.add('active'));
+        window.scrollTo(0, 0);
     },
 
     nextPage() {
-        const maxPage = Math.ceil(AppState.quizData.length / AppState.questionsPerPage) - 1;
-        if (AppState.currentPage < maxPage) {
+        const totalPages = Math.ceil(AppState.quizData.length / AppState.questionsPerPage);
+        if (AppState.currentPage < totalPages - 1) {
             AppState.currentPage++;
+            AppState.currentQuestionIndex = AppState.currentPage * AppState.questionsPerPage;
             UI.showCurrentPageQuestions();
             UI.updatePagination();
         }
@@ -142,6 +152,7 @@ const Main = {
     prevPage() {
         if (AppState.currentPage > 0) {
             AppState.currentPage--;
+            AppState.currentQuestionIndex = AppState.currentPage * AppState.questionsPerPage;
             UI.showCurrentPageQuestions();
             UI.updatePagination();
         }
