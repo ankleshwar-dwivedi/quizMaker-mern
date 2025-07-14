@@ -1,27 +1,51 @@
 // js/ui.js
 const UI = {
-    // DOM element references
-    settingsContainer: document.getElementById('settings-container'),
-    quizContainer: document.getElementById('quiz-container'),
-    paletteContainer: document.getElementById('question-palette'),
-    paginationContainer: document.getElementById('pagination-container'),
-    submitBtn: document.getElementById('submit-test-btn'),
-    timerDisplay: document.getElementById('timer-display'),
-    resultsSummary: document.getElementById('results-summary'),
+    // --- Element Getters ---
+    get elements() {
+        return {
+            body: document.body,
+            sidebar: document.getElementById('sidebar'),
+            settingsContainer: document.getElementById('settings-container'),
+            quizArea: document.getElementById('quiz-area'),
+            quizContainer: document.getElementById('quiz-container'),
+            paletteContainer: document.getElementById('question-palette'),
+            paginationContainer: document.getElementById('pagination-container'),
+            submitBtn: document.getElementById('submit-test-btn'),
+            timerDisplay: document.getElementById('timer-display'),
+            resultsSummary: document.getElementById('results-summary')
+        };
+    },
 
-    // Renders the entire quiz display
+    // --- High-Level UI State Changers ---
+    showQuizScreen() {
+        const { settingsContainer, quizArea, sidebar, body } = this.elements;
+        settingsContainer.classList.add('hidden');
+        quizArea.classList.remove('hidden');
+        sidebar.classList.remove('hidden');
+        body.classList.add('quiz-active'); // Add class to body for padding
+    },
+
+    showSettingsScreen() {
+        const { settingsContainer, quizArea, sidebar, body } = this.elements;
+        settingsContainer.classList.remove('hidden');
+        quizArea.classList.add('hidden');
+        sidebar.classList.add('hidden');
+        body.classList.remove('quiz-active');
+    },
+
+    // --- Component Renderers ---
     renderQuiz() {
-        this.quizContainer.innerHTML = ''; // Clear existing
+        const { quizContainer } = this.elements;
+        quizContainer.innerHTML = '';
         AppState.quizData.forEach((q, index) => {
             const questionNode = this.createQuestionElement(q, index);
-            this.quizContainer.appendChild(questionNode);
+            quizContainer.appendChild(questionNode);
         });
         this.updatePalette();
         this.updatePagination();
         this.showCurrentPageQuestions();
     },
 
-    // Creates a single question element from the template
     createQuestionElement(q, index) {
         const template = document.getElementById('question-template');
         const questionBlock = template.content.cloneNode(true).firstElementChild;
@@ -30,36 +54,48 @@ const UI = {
         questionBlock.querySelector('.subject-tag').textContent = q.subject;
         questionBlock.querySelector('.question-statement').textContent = `Q${index + 1}: ${q.question}`;
 
-        // Handle code snippet
-        const codeContainer = questionBlock.querySelector('.code-snippet-container');
-        if (q.isCodeSnippet) {
-            codeContainer.querySelector('code').textContent = q.code;
-            codeContainer.classList.add('visible');
+        if (q.code && q.code.trim() !== '') {
+            this.renderCodeSnippet(questionBlock, q.code);
         }
 
-        // Create options
-        const optionsContainer = questionBlock.querySelector('.options-container');
-        q.options.forEach((optText, optIndex) => {
-            const option = document.createElement('div');
-            option.className = 'option';
-            option.textContent = optText;
-            option.dataset.index = optIndex;
-            optionsContainer.appendChild(option);
-        });
+        this.renderOptions(questionBlock, q.options, index);
         
-        // Add mark for review button event
         const markBtn = questionBlock.querySelector('.mark-review-btn');
         markBtn.addEventListener('click', () => {
             AppState.toggleReviewMark(index);
             this.updatePalette();
+            markBtn.classList.toggle('marked', AppState.markedForReview.has(index));
         });
 
         return questionBlock;
     },
+    
+    renderCodeSnippet(questionBlock, code) {
+        const codeContainer = document.createElement('pre');
+        codeContainer.className = 'code-snippet-container';
+        const codeElement = document.createElement('code');
+        codeElement.textContent = code;
+        codeContainer.appendChild(codeElement);
+        questionBlock.querySelector('.question-header').after(codeContainer);
+    },
 
-    // Updates the question palette sidebar
+    renderOptions(questionBlock, options, qIndex) {
+        const optionsContainer = questionBlock.querySelector('.options-container');
+        options.forEach((optText, optIndex) => {
+            const option = document.createElement('div');
+            option.className = 'option';
+            option.textContent = optText;
+            option.dataset.index = optIndex;
+            // The event listener is now handled centrally in main.js
+            optionsContainer.appendChild(option);
+        });
+    },
+
     updatePalette() {
-        this.paletteContainer.innerHTML = '';
+        const { paletteContainer } = this.elements;
+        paletteContainer.innerHTML = '';
+        if (!AppState.quizData || AppState.quizData.length === 0) return;
+
         for (let i = 0; i < AppState.quizData.length; i++) {
             const btn = document.createElement('button');
             btn.className = 'palette-btn';
@@ -71,70 +107,82 @@ const UI = {
             if (i === AppState.currentQuestionIndex) btn.classList.add('current');
             
             btn.addEventListener('click', () => {
+                const newPage = Math.floor(i / AppState.questionsPerPage);
+                if (AppState.currentPage !== newPage) {
+                    AppState.currentPage = newPage;
+                    this.updatePagination();
+                    this.showCurrentPageQuestions();
+                }
                 AppState.currentQuestionIndex = i;
-                this.updatePagination();
-                this.showCurrentPageQuestions();
                 this.updatePalette();
             });
-            this.paletteContainer.appendChild(btn);
+            paletteContainer.appendChild(btn);
         }
     },
 
-    // Updates pagination controls
     updatePagination() {
-        this.paginationContainer.style.display = 'flex';
-        this.paginationContainer.innerHTML = `
+        const { paginationContainer } = this.elements;
+        const totalPages = Math.ceil(AppState.quizData.length / AppState.questionsPerPage);
+
+        if (totalPages <= 1) {
+            paginationContainer.classList.add('hidden');
+            return;
+        }
+
+        paginationContainer.classList.remove('hidden');
+        paginationContainer.innerHTML = `
             <button id="prev-btn" class="pagination-btn">Previous</button>
-            <span>Page ${AppState.currentPage + 1} of ${Math.ceil(AppState.quizData.length / AppState.questionsPerPage)}</span>
+            <span>Page ${AppState.currentPage + 1} of ${totalPages}</span>
             <button id="next-btn" class="pagination-btn">Next</button>
         `;
         document.getElementById('prev-btn').disabled = AppState.currentPage === 0;
-        document.getElementById('next-btn').disabled = AppState.currentPage >= Math.ceil(AppState.quizData.length / AppState.questionsPerPage) - 1;
+        document.getElementById('next-btn').disabled = AppState.currentPage >= totalPages - 1;
 
-        // Add event listeners here as the buttons are recreated
         document.getElementById('prev-btn').addEventListener('click', Main.prevPage);
         document.getElementById('next-btn').addEventListener('click', Main.nextPage);
     },
 
-    // Shows questions for the current page and hides others
     showCurrentPageQuestions() {
         const start = AppState.currentPage * AppState.questionsPerPage;
         const end = start + AppState.questionsPerPage;
         document.querySelectorAll('.question-block').forEach((block, index) => {
-            block.classList.toggle('active', index >= start && index < end);
+            // Only the question corresponding to currentQuestionIndex on the current page is active
+            block.classList.toggle('active', index === AppState.currentQuestionIndex);
         });
         this.updatePalette();
     },
-    
-    // Shows feedback after an answer
-    showFeedback(selectedOption) {
-        const questionBlock = selectedOption.closest('.question-block');
-        const optionsContainer = questionBlock.querySelector('.options-container');
-        const reasonsContainer = document.createElement('div');
-        reasonsContainer.className = 'reasons-container';
-        
-        const questionIndex = parseInt(questionBlock.dataset.questionIndex, 10);
-        const question = AppState.quizData[questionIndex];
-        const selectedAnswerIndex = parseInt(selectedOption.dataset.index, 10);
-        const correctAnswerIndex = question.correctAnswer;
 
-        // Add reasons to the container
+    showFeedback(questionIndex, selectedAnswerIndex) {
+        const questionBlock = document.querySelector(`.question-block[data-question-index='${questionIndex}']`);
+        if (!questionBlock) return;
+        
+        const optionsContainer = questionBlock.querySelector('.options-container');
+        const reasonsContainer = questionBlock.querySelector('.reasons-container');
+        
+        const question = AppState.quizData[questionIndex];
+        const correctAnswerIndex = question.correctAnswer;
+        
+        reasonsContainer.innerHTML = '';
         question.reasons.forEach((reasonText, reasonIndex) => {
             const reason = document.createElement('p');
             reason.textContent = reasonText;
             reason.className = (reasonIndex === correctAnswerIndex) ? 'correct-reason' : 'incorrect-reason';
             reasonsContainer.appendChild(reason);
         });
-        questionBlock.appendChild(reasonsContainer);
 
-        // Style options
-        if (selectedAnswerIndex === correctAnswerIndex) {
-            selectedOption.classList.add('correct');
-        } else {
-            selectedOption.classList.add('incorrect');
-            const correctOption = optionsContainer.querySelector(`[data-index='${correctAnswerIndex}']`);
-            correctOption.classList.add('correct');
+        // Ensure selectedOption exists before adding class
+        if(selectedAnswerIndex !== undefined) {
+             const selectedOption = optionsContainer.querySelector(`[data-index='${selectedAnswerIndex}']`);
+             if (selectedAnswerIndex === correctAnswerIndex) {
+                selectedOption.classList.add('correct');
+            } else {
+                selectedOption.classList.add('incorrect');
+            }
         }
+       
+        const correctOption = optionsContainer.querySelector(`[data-index='${correctAnswerIndex}']`);
+        if (correctOption) correctOption.classList.add('correct');
+        
         optionsContainer.classList.add('disabled');
         reasonsContainer.style.display = 'block';
     }

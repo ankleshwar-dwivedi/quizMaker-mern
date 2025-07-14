@@ -1,20 +1,21 @@
-{
-    "subject": "Java Code: Wrapper Classes",
-    "question": "What is the output of this code?",
-    "isCodeSnippet": true,
-    "code": "Integer i1 = 127;\nInteger i2 = 127;\nInteger i3 = 128;\nInteger i4 = 128;\n\nSystem.out.println(i1 == i2);\nSystem.out.println(i3 == i4);",
-    "options": [
-        "true\ntrue",
-        "true\nfalse",
-        "false\nfalse",
-        "false\ntrue"
-    ],
-    "reasons": [
-        "Incorrect. The behavior changes for values outside the cache range.",
-        "Correct. Java maintains an integer cache for values -128 to 127. `i1` and `i2` point to the same cached object. 128 is outside this range, so `i3` and `i4` point to two different new objects on the heap.",
-        "Incorrect. The first comparison is true due to the integer cache.",
-        "Incorrect. The logic is reversed."
-    ],
-    "correctAnswer": 1,
-    "time": { "min": 60, "avg": 80 }
-}
+[  
+    {
+        "subject": "Java: Generics",
+        "question": "What is the primary reason this code fails to compile?",
+        "code": "List<String> strList = new ArrayList<>();\nList<Object> objList = strList; // This line causes the error\nobjList.add(123); // This would corrupt the list\nString s = strList.get(0);",
+        "options": [
+            "The List interface does not support inheritance.",
+            "Generics in Java are invariant, meaning List<String> is not a subtype of List<Object>.",
+            "An ArrayList cannot be assigned to a List interface.",
+            "Type erasure removes the type, so it should work."
+        ],
+        "reasons": [
+            "Incorrect. The List interface is central to polymorphism in collections.",
+            "Correct. This is a core principle of Java's type safety...",
+            "Incorrect. This is a standard and valid use of polymorphism.",
+            "Incorrect. Type erasure is the reason this is disallowed..."
+        ],
+        "correctAnswer": 1,
+        "time": { "min": 60, "avg": 80 }
+    }
+] 

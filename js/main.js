@@ -4,7 +4,16 @@ const Main = {
         document.getElementById('start-quiz-btn').addEventListener('click', this.handleQuizStart);
         document.getElementById('submit-test-btn').addEventListener('click', this.handleSubmitTest);
         
-        // Check if there's a session to restore
+        // Centralized event listener for options
+        UI.elements.quizContainer.addEventListener('click', (event) => {
+            if (event.target.classList.contains('option')) {
+                const questionBlock = event.target.closest('.question-block');
+                const qIndex = parseInt(questionBlock.dataset.questionIndex, 10);
+                const oIndex = parseInt(event.target.dataset.index, 10);
+                this.handleOptionClick(qIndex, oIndex);
+            }
+        });
+
         if (AppState.loadFromSession()) {
             this.startSessionFromState();
         }
@@ -22,8 +31,13 @@ const Main = {
         reader.onload = (e) => {
             try {
                 const fileContent = e.target.result;
-                AppState.reset(); // Clear any old state
-                AppState.quizData = JSON.parse(fileContent);
+                AppState.reset();
+                const parsedData = JSON.parse(fileContent);
+                // FIX: Ensure the parsed data is an array
+                if (!Array.isArray(parsedData)) {
+                    throw new Error("JSON file must contain an array of questions.");
+                }
+                AppState.quizData = parsedData;
                 AppState.quizMode = document.querySelector('input[name="quiz_mode"]:checked').value;
                 
                 sessionStorage.setItem('quizData', fileContent);
@@ -31,14 +45,14 @@ const Main = {
                 
                 Main.startSessionFromState();
             } catch (error) {
-                alert(`Error: Invalid JSON file. ${error.message}`);
+                alert(`Error: ${error.message}`);
             }
         };
         reader.readAsText(file);
     },
 
     startSessionFromState() {
-        UI.settingsContainer.style.display = 'none';
+        UI.showQuizScreen();
         UI.renderQuiz();
         
         const durationInput = document.getElementById('quiz-duration-input');
@@ -46,35 +60,29 @@ const Main = {
         this.startSessionTimer(duration);
 
         if (AppState.quizMode === 'test') {
-            UI.submitBtn.style.display = 'block';
+            UI.elements.submitBtn.style.display = 'block';
         }
     },
 
     startSessionTimer(durationMinutes) {
+        // ... (This function remains the same as before)
         if (AppState.sessionTimer) clearInterval(AppState.sessionTimer);
-        
-        const sessionDuration = (sessionStorage.getItem('quizSessionStart'))
-            ? parseInt(sessionStorage.getItem('quizDuration'), 10)
-            : durationMinutes * 60 * 1000;
-            
+        const sessionDuration = sessionStorage.getItem('quizSessionStart') ? parseInt(sessionStorage.getItem('quizDuration'), 10) : durationMinutes * 60 * 1000;
         const startTime = parseInt(sessionStorage.getItem('quizSessionStart') || Date.now(), 10);
-
         if (!sessionStorage.getItem('quizSessionStart')) {
              sessionStorage.setItem('quizSessionStart', startTime);
              sessionStorage.setItem('quizDuration', sessionDuration);
         }
-
-        UI.timerDisplay.style.display = 'block';
-
+        UI.elements.timerDisplay.style.display = 'block';
         AppState.sessionTimer = setInterval(() => {
             const elapsed = Date.now() - startTime;
             if (elapsed >= sessionDuration) {
-                this.endSession('Time is up!');
+                this.endSession('Time is up! Your test has been submitted.');
             } else {
                 const timeLeft = sessionDuration - elapsed;
                 const minutes = Math.floor(timeLeft / 60000);
                 const seconds = Math.floor((timeLeft % 60000) / 1000).toString().padStart(2, '0');
-                UI.timerDisplay.textContent = `Time Left: ${minutes}:${seconds}`;
+                UI.elements.timerDisplay.textContent = `Time Left: ${minutes}:${seconds}`;
             }
         }, 1000);
     },
@@ -87,22 +95,19 @@ const Main = {
         alert(message);
     },
 
-    handleOptionClick(event) {
-        const selectedOption = event.target;
-        const questionBlock = selectedOption.closest('.question-block');
-        if (!questionBlock || selectedOption.closest('.options-container').classList.contains('disabled')) return;
-
-        const questionIndex = parseInt(questionBlock.dataset.questionIndex, 10);
-        const selectedAnswerIndex = parseInt(selectedOption.dataset.index, 10);
+    handleOptionClick(questionIndex, selectedAnswerIndex) {
+        if (AppState.isSubmitted) return;
 
         AppState.saveAnswer(questionIndex, selectedAnswerIndex);
         UI.updatePalette();
         
         if (AppState.quizMode === 'practice') {
-            UI.showFeedback(selectedOption);
+            UI.showFeedback(questionIndex, selectedAnswerIndex);
         } else { // Test mode
+            const questionBlock = document.querySelector(`.question-block[data-question-index='${questionIndex}']`);
             questionBlock.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
-            selectedOption.classList.add('selected');
+            const selectedOption = questionBlock.querySelector(`.option[data-index='${selectedAnswerIndex}']`);
+            if(selectedOption) selectedOption.classList.add('selected');
         }
     },
     
@@ -111,23 +116,18 @@ const Main = {
         AppState.isSubmitted = true;
         
         clearInterval(AppState.sessionTimer);
-        UI.timerDisplay.style.color = '#e67e22';
-        UI.submitBtn.style.display = 'none';
+        UI.elements.timerDisplay.style.color = '#e67e22';
+        UI.elements.submitBtn.style.display = 'none';
+        UI.elements.paginationContainer.classList.add('hidden');
 
         let score = 0;
         AppState.quizData.forEach((question, index) => {
-            if (AppState.userAnswers[index] === question.correctAnswer) {
-                score++;
-            }
+            if (AppState.userAnswers[index] === question.correctAnswer) score++;
+            UI.showFeedback(index, AppState.userAnswers[index]);
         });
         
-        UI.resultsSummary.textContent = `Test Complete! Your Score: ${score} / ${AppState.quizData.length}`;
-        // Go through and show feedback for all questions
-        document.querySelectorAll('.question-block').forEach((block, index) => {
-            const selectedAnswer = AppState.userAnswers[index];
-            const selectedOption = block.querySelector(`.option[data-index='${selectedAnswer}']`);
-            if(selectedOption) UI.showFeedback(selectedOption);
-        });
+        UI.elements.resultsSummary.textContent = `Test Complete! Your Score: ${score} / ${AppState.quizData.length}`;
+        document.querySelectorAll('.question-block').forEach(block => block.classList.add('active'));
     },
 
     nextPage() {
@@ -148,12 +148,4 @@ const Main = {
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-    Main.init();
-    // Add a single event listener on the container for delegation
-    document.getElementById('quiz-container').addEventListener('click', (event) => {
-        if (event.target.classList.contains('option')) {
-            Main.handleOptionClick(event);
-        }
-    });
-});
+document.addEventListener('DOMContentLoaded', () => Main.init());
