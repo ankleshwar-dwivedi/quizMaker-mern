@@ -1,21 +1,187 @@
-[  
+[
     {
-        "subject": "Java: Generics",
-        "question": "What is the primary reason this code fails to compile?",
-        "code": "List<String> strList = new ArrayList<>();\nList<Object> objList = strList; // This line causes the error\nobjList.add(123); // This would corrupt the list\nString s = strList.get(0);",
+        "subject": "DSA: Big O Notation",
+        "question": "What is the time complexity of the following code snippet?",
+        "code": "int a = 0;\nfor (i = 0; i < N; i++) {\n    for (j = N; j > i; j--) {\n        a = a + i + j;\n    }\n}",
         "options": [
-            "The List interface does not support inheritance.",
-            "Generics in Java are invariant, meaning List<String> is not a subtype of List<Object>.",
-            "An ArrayList cannot be assigned to a List interface.",
-            "Type erasure removes the type, so it should work."
+            "O(N * log N)",
+            "O(N)",
+            "O(N * Sqrt(N))",
+            "O(N^2)"
         ],
         "reasons": [
-            "Incorrect. The List interface is central to polymorphism in collections.",
-            "Correct. This is a core principle of Java's type safety...",
-            "Incorrect. This is a standard and valid use of polymorphism.",
-            "Incorrect. Type erasure is the reason this is disallowed..."
+            "Incorrect. This complexity is typical for sorting algorithms like Merge Sort, not this nested loop structure.",
+            "Incorrect. A single loop would be O(N), but there is a nested loop here.",
+            "Incorrect. The inner loop's dependency is linear on `i`, not related to a square root.",
+            "Correct. The outer loop runs N times. The inner loop runs N times, then N-1, N-2, etc. The total number of operations is proportional to N*(N+1)/2, which simplifies to O(N^2)."
+        ],
+        "correctAnswer": 3,
+        "time": { "min": 60, "avg": 80 }
+    },
+    {
+        "subject": "DSA: Arrays",
+        "question": "What is a major disadvantage of arrays for storing data?",
+        "options": [
+            "Elements are stored in contiguous memory locations.",
+            "The size of the array is fixed once created.",
+            "Accessing an element by its index is slow.",
+            "They cannot store primitive data types."
+        ],
+        "reasons": [
+            "Incorrect. This is actually a major *advantage*, as it allows for O(1) random access.",
+            "Correct. Standard arrays have a fixed capacity. If you need to store more elements than the array's size, you must create a new, larger array and copy all the old elements over, which is an inefficient process.",
+            "Incorrect. Accessing an element by index is the fastest operation in an array, at O(1).",
+            "Incorrect. Arrays are perfectly suited for storing primitive types."
         ],
         "correctAnswer": 1,
-        "time": { "min": 60, "avg": 80 }
+        "time": { "min": 25, "avg": 40 }
+    },
+    {
+        "subject": "DSA: Stacks",
+        "question": "Which data structure is used for implementing function call recursion?",
+        "options": [
+            "Queue",
+            "Stack",
+            "Linked List",
+            "Array"
+        ],
+        "reasons": [
+            "Incorrect. A queue uses a FIFO (First-In, First-Out) model, which is incorrect for function calls that must return to the most recent caller.",
+            "Correct. The 'Call Stack' uses a LIFO (Last-In, First-Out) model. When a function is called, its state (parameters, local variables, return address) is pushed onto the stack. When the function returns, its state is popped off, and control returns to the function below it on the stack.",
+            "Incorrect. While a stack can be implemented with a linked list, the abstract data type that models this behavior is the Stack.",
+            "Incorrect. While the underlying memory for the stack might be an array, the ADT is a Stack."
+        ],
+        "correctAnswer": 1,
+        "time": { "min": 30, "avg": 45 }
+    },
+    {
+        "subject": "DSA: Queues",
+        "question": "A breadth-first search (BFS) algorithm on a graph typically uses which data structure to keep track of nodes to visit?",
+        "options": [
+            "A Stack",
+            "A Priority Queue",
+            "A Queue",
+            "A Hash Table"
+        ],
+        "reasons": [
+            "Incorrect. A stack would result in a depth-first search (DFS).",
+            "Incorrect. A priority queue would be used for algorithms like Dijkstra's, where the 'closest' node is processed next.",
+            "Correct. BFS explores the graph layer by layer. A queue's FIFO property ensures that you visit all nodes at the current depth level before moving on to the nodes at the next depth level.",
+            "Incorrect. A hash table might be used to keep track of visited nodes, but not to manage the order of nodes to visit."
+        ],
+        "correctAnswer": 2,
+        "time": { "min": 40, "avg": 55 }
+    },
+    {
+        "subject": "DSA: Linked Lists",
+        "question": "What is the output of the following code, assuming a standard singly linked list implementation?",
+        "code": "Node head = new Node(1);\nhead.next = new Node(2);\nhead.next.next = new Node(3);\n\nhead = head.next;\nhead.next.next = new Node(4);\n\n// Now print the list starting from the original head's next node\n// (This is a conceptual question about what the structure looks like)",
+        "options": [
+            "The list becomes 2 -> 3 -> 4",
+            "The list becomes 2 -> 4",
+            "The list becomes 1 -> 2 -> 4",
+            "The code causes a NullPointerException."
+        ],
+        "reasons": [
+            "Incorrect. Node 3 is overwritten.",
+            "Correct. 1. `head` points to 1->2->3. 2. `head = head.next` makes `head` now point to node 2. 3. `head.next.next = new Node(4)` means `2.next.next` (which is `3.next`) is set to 4. This detaches node 3 from the list. The list pointed to by the new `head` is now 2 -> 3, but then 3's next is changed to 4. The statement `head.next.next` is actually `(2's next)'s next`, which is `3`'s next. So the list starting from the new head is 2->3->4. Ah, let's re-read `head.next.next = new Node(4)`. `head` is 2. `head.next` is 3. `head.next.next` is assigning `3.next` to be a new Node(4). The original list becomes 1 -> (2 -> 3 -> 4). But the question asks what the list starting from the NEW head (node 2) looks like, which is `2 -> 3 -> 4`.",
+            "Incorrect. The head reference was moved.",
+            "Incorrect. All references are valid at the time of access."
+        ],
+        "correctAnswer": 0,
+        "time": { "min": 70, "avg": 90 }
+    },
+    {
+        "subject": "DSA: Complexity Analysis",
+        "question": "What does it mean if an algorithm is 'in-place'?",
+        "options": [
+            "It does not use any extra memory.",
+            "It runs in O(1) time.",
+            "It modifies the input data structure directly without requiring a large amount of extra memory (auxiliary space).",
+            "It can be implemented without using loops."
+        ],
+        "reasons": [
+            "Incorrect. It can use a small, constant amount of extra memory (like for temporary variables).",
+            "Incorrect. In-place algorithms can have various time complexities (e.g., Bubble Sort is in-place but O(n^2)).",
+            "Correct. An in-place algorithm's space complexity is O(1) for auxiliary space. It sorts or manipulates the elements within the original array or data structure, overwriting the input. Bubble Sort and Heap Sort are examples of in-place algorithms, while Merge Sort is not.",
+            "Incorrect. Most in-place algorithms use loops."
+        ],
+        "correctAnswer": 2,
+        "time": { "min": 35, "avg": 50 }
+    },
+    {
+        "subject": "DSA: Linked Lists",
+        "question": "In a Doubly Linked List, why is deleting a node given a pointer to that node an O(1) operation?",
+        "code": "// Given a pointer 'nodeToDelete'\nNode prevNode = nodeToDelete.prev;\nNode nextNode = nodeToDelete.next;\n\nif (prevNode != null) {\n    prevNode.next = nextNode;\n}\nif (nextNode != null) {\n    nextNode.prev = prevNode;\n}",
+        "options": [
+            "Because you have to traverse the entire list to find it first.",
+            "Because it has a `prev` pointer, allowing direct access to the preceding node to update its `next` pointer.",
+            "Because doubly linked lists are stored in arrays.",
+            "It is not O(1), it is O(n)."
+        ],
+        "reasons": [
+            "Incorrect. The premise is that you are *given* a pointer to the node, so no search is needed.",
+            "Correct. To delete a node, you must update the pointers of its neighbors. In a singly linked list, you can't find the previous node efficiently. In a doubly linked list, `nodeToDelete.prev` gives you the previous node in O(1) time, allowing you to update its `next` pointer and complete the deletion in constant time.",
+            "Incorrect. They are not stored in arrays.",
+            "Incorrect. The traversal (O(n)) is only needed if you have to *find* the node first. The deletion itself is O(1)."
+        ],
+        "correctAnswer": 1,
+        "time": { "min": 50, "avg": 70 }
+    },
+    {
+        "subject": "DSA: Stacks & Queues",
+        "question": "How can you implement a Queue using two Stacks?",
+        "options": [
+            "It is not possible.",
+            "Use one stack for `enqueue` and the other for `dequeue`, transferring elements as needed.",
+            "Use `push` on the first stack and `pop` on the second stack.",
+            "Use one stack for the front half and the other for the back half."
+        ],
+        "reasons": [
+            "Incorrect. This is a classic interview problem.",
+            "Correct. The standard method (amortized O(1) dequeue) is: to `enqueue`, you `push` onto stack1. To `dequeue`, if stack2 is empty, you pop every element from stack1 and push it onto stack2. This reverses the order. Then you `pop` from stack2. This ensures a FIFO behavior.",
+            "Incorrect. This oversimplifies the necessary logic for maintaining FIFO order.",
+            "Incorrect. This would not result in a correct queue behavior."
+        ],
+        "correctAnswer": 1,
+        "time": { "min": 70, "avg": 90 }
+    },
+    {
+        "subject": "DSA: Circular Queues",
+        "question": "What condition indicates that a circular queue implemented in an array of size N is full?",
+        "code": "// `front` is the index of the front element\n// `rear` is the index of the rear element",
+        "options": [
+            "`rear == N-1`",
+            "`front == rear`",
+            "`(rear + 1) % N == front`",
+            "`rear == front + 1`"
+        ],
+        "reasons": [
+            "Incorrect. The rear could be at the end, but the front might have moved, leaving space.",
+            "Incorrect. `front == rear` can also indicate that the queue is empty.",
+            "Correct. To distinguish a full queue from an empty one, one slot in the array is typically kept empty. The queue is considered full when the `rear` pointer is one position behind the `front` pointer (with wrap-around). The modulo operator handles the wrap-around logic perfectly.",
+            "Incorrect. This does not account for the circular wrap-around."
+        ],
+        "correctAnswer": 2,
+        "time": { "min": 50, "avg": 70 }
+    },
+    {
+        "subject": "DSA: Linked Lists",
+        "question": "What is a primary use case for a circular linked list?",
+        "code": "",
+        "options": [
+            "Implementing a stack.",
+            "Implementing applications that require round-robin scheduling, like processes in an operating system.",
+            "Storing a sorted list of items.",
+            "Fast random access to elements."
+        ],
+        "reasons": [
+            "Incorrect. A simple linear list is sufficient for a stack.",
+            "Correct. Because the list has no end, you can continuously cycle through its elements. This is ideal for things like a round-robin scheduler, where you process each item in a loop, or a media player's playlist set to repeat.",
+            "Incorrect. While it can be sorted, it offers no advantage over a regular linked list for this purpose.",
+            "Incorrect. Linked lists are inherently poor at random access."
+        ],
+        "correctAnswer": 1,
+        "time": { "min": 40, "avg": 55 }
     }
-] 
+]
